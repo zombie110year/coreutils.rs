@@ -11,3 +11,4 @@ are specified on the command line, read them from standard input"""
 
 [dependencies]
 clap = "2"
+fastcalc = { path = "../fastcalc" }

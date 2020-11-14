@@ -1,5 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, crate_version};
 use clap::{App, Arg};
+use fastcalc::isqrt;
 
 // ANCHOR: clap_app
 fn get_cli_parser() -> App<'static, 'static> {
@@ -99,7 +100,7 @@ fn eratosthenes(n: usize) -> Vec<u64> {
     map[0] = false;
     map[1] = false;
     // O(\sqrt{n})
-    for i in 2..=isqrt(n) {
+    for i in 2..=isqrt(n as u64) as usize {
         if map[i] {
             // O(n)
             for j in 2..=(n / i) {
@@ -115,19 +116,6 @@ fn eratosthenes(n: usize) -> Vec<u64> {
         .collect()
 }
 // ANCHOR_END: eratosthenes
-
-fn isqrt(n: usize) -> usize {
-    if n < 2 {
-        n
-    } else {
-        let r = 2 * isqrt(n / 4);
-        if (r + 1) * (r + 1) > n {
-            r
-        } else {
-            r + 1
-        }
-    }
-}
 
 /// Polard's rho 算法
 fn polard_rho(n: u64) -> (u64, u64) {
@@ -153,17 +141,4 @@ fn test_eratosthenes() {
             89, 97
         ]
     )
-}
-
-#[cfg(test)]
-#[test]
-fn test_isqrt() {
-    assert_eq!(isqrt(0), 0);
-    assert_eq!(isqrt(1), 1);
-    assert_eq!(isqrt(2), 1);
-    assert_eq!(isqrt(3), 1);
-    assert_eq!(isqrt(4), 2);
-    for i in 1..256 {
-        assert_eq!(isqrt(256 * 256 + i), 256);
-    }
 }
