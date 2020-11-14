@@ -1,0 +1,6 @@
+[book]
+authors = ["zombie110year"]
+language = "zh"
+multilingual = false
+src = "src"
+title = "Coreutils' 笔记"
