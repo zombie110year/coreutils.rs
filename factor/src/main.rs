@@ -114,6 +114,7 @@ fn eratosthenes(n: usize) -> Vec<u64> {
         .map(|(i, _b)| i as u64)
         .collect()
 }
+// ANCHOR_END: eratosthenes
 
 fn isqrt(n: usize) -> usize {
     if n < 2 {
@@ -127,7 +128,20 @@ fn isqrt(n: usize) -> usize {
         }
     }
 }
-// ANCHOR_END: eratosthenes
+
+/// Polard's rho 算法
+fn polard_rho(n: u64) -> (u64, u64) {
+    let mut x = 2;
+    loop {
+        let y = (x * x + 1) % n;
+        let p = gcd(n, if x > y { x - y } else { y - x });
+        if p > 1 {
+            return (p, n / p);
+        } else {
+            x = y;
+        }
+    }
+}
 
 #[cfg(test)]
 #[test]
