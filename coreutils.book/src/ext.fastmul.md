@@ -18,4 +18,12 @@ $$
 
 ## 递归实现
 
+```rust,ignore
+{{#include ../../fastcalc/src/lib.rs:fastmul}}
+```
+
 ## 循环实现
+
+```rust,ignore
+{{#include ../../fastcalc/src/lib.rs:fastmul_norec}}
+```
