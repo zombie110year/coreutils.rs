@@ -26,11 +26,11 @@ $$
 ## 递归实现
 
 ```rust,ignore
-{{#include ../../fastcalc/src/lib.rs:fastpow}}
+{{#include ../../../fastcalc/src/lib.rs:fastpow}}
 ```
 
 ## 循环实现
 
 ```rust,ignore
-{{#include ../../fastcalc/src/lib.rs:fastpow_norec}}
+{{#include ../../../fastcalc/src/lib.rs:fastpow_norec}}
 ```
