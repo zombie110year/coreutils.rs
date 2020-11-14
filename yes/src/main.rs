@@ -1,12 +1,12 @@
 // ANCHOR: clap_app
-use clap::{crate_version, App, Arg};
+use clap::{crate_version, crate_authors, crate_description, crate_name};
+use clap::{App, Arg};
 
 fn get_cli_parser() -> App<'static, 'static> {
-    App::new("yes")
+    App::new(crate_name!())
         .version(crate_version!())
-        .author("zombie110year")
-        .about("output a string repeatedly until killed")
-        .usage("yes [STRING]...")
+        .author(crate_authors!("; "))
+        .about(crate_description!())
         .arg(Arg::with_name("STRING").multiple(true))
 }
 // ANCHOR_END: clap_app
