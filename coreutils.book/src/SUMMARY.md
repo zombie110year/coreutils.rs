@@ -10,3 +10,4 @@
 # 附录
 - [附录：快速乘算法](./ext/fastmul.md)
 - [附录：快速幂算法](./ext/fastpow.md)
+- [附录：整数开方](./ext/isqrt.md)

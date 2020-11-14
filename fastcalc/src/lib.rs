@@ -81,6 +81,46 @@ pub fn fastmul_norec(a: u64, b: u64) -> u64 {
 }
 // ANCHOR_END: fastmul_norec
 
+/// 整数开方
+/// $\sqrt{n}$
+// ANCHOR: isqrt
+pub fn isqrt(n: u64) -> u64 {
+    if n < 2 {
+        n
+    } else {
+        let r = 2 * isqrt(n / 4);
+        let rr = r + 1;
+        if n < rr * rr {
+            r
+        } else {
+            rr
+        }
+    }
+}
+// ANCHOR_END: isqrt
+
+/// 整数开 n 次方
+/// $\sqrt[n]{i}$
+// ANCHOR: iroot
+pub fn iroot(i: u64, n: u32) -> u64 {
+    match (i, n) {
+        (0, _) => 0,
+        (1, _) => 1,
+        (_, 1) => i,
+        (i,n) => {
+            let b = 2u64.pow(n);
+            let r = 2 * iroot(i / b, n);
+            let rr = r + 1;
+            if i < rr.pow(n) {
+                r
+            } else {
+                rr
+            }
+        }
+    }
+}
+// ANCHOR_END: iroot
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -136,5 +176,29 @@ mod tests {
             fastmul_norec(std::u64::MAX, std::u64::MAX),
             std::u64::MAX.wrapping_mul(std::u64::MAX)
         );
+    }
+
+    #[test]
+    fn test_isqrt() {
+        assert_eq!(isqrt(16), 4);
+        assert_eq!(isqrt(17), 4);
+        assert_eq!(isqrt(24), 4);
+        assert_eq!(isqrt(25), 5);
+    }
+
+    #[test]
+    fn test_iroot() {
+        assert_eq!(iroot(1, 1), 1);
+        assert_eq!(iroot(2, 1), 2);
+        assert_eq!(iroot(3, 1), 3);
+
+        assert_eq!(iroot(16, 2), 4);
+        assert_eq!(iroot(17, 2), 4);
+        assert_eq!(iroot(24, 2), 4);
+        assert_eq!(iroot(25, 2), 5);
+
+        assert_eq!(iroot(25, 3), 2);
+        assert_eq!(iroot(26, 3), 2);
+        assert_eq!(iroot(27, 3), 3);
     }
 }
