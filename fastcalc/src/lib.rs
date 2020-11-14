@@ -8,7 +8,7 @@ pub fn fastpow(b: u64, e: u32) -> u64 {
         1 => b,
         e => {
             if e & 1 == 1 {
-                b * fastpow(b.wrapping_mul(b), e / 2)
+                fastpow(b.wrapping_mul(b), e / 2).wrapping_mul(b)
             } else {
                 fastpow(b.wrapping_mul(b), e / 2)
             }
@@ -87,24 +87,28 @@ mod tests {
 
     #[test]
     fn test_fastpow() {
-        assert_eq!(fastpow(2, 10), 1024);
-
-        for i in 1..100 {
-            for j in 1..10 {
+        for i in 0..100 {
+            for j in 0..10 {
                 assert_eq!(fastpow(i, j), i.pow(j))
             }
         }
+        assert_eq!(
+            fastpow(std::u64::MAX, std::u32::MAX),
+            std::u64::MAX.wrapping_pow(std::u32::MAX)
+        );
     }
 
     #[test]
     fn test_fastpow_norec() {
-        assert_eq!(fastpow_norec(2, 10), 1024);
-
-        for i in 1..100 {
-            for j in 1..10 {
+        for i in 0..100 {
+            for j in 0..10 {
                 assert_eq!(fastpow_norec(i, j), i.pow(j))
             }
         }
+        assert_eq!(
+            fastpow(std::u64::MAX, std::u32::MAX),
+            std::u64::MAX.wrapping_pow(std::u32::MAX)
+        );
     }
 
     #[test]
