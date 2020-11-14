@@ -14,10 +14,10 @@ $$
 $$
 \def\pow{\operatorname{pow}}
 \pow(b, e) = \begin{cases}
-    \pow(b^2, \frac{e}{2}) & e \ \text{是偶数} \\
+    \pow(b^2, \frac{e}{2}) & e \ \text{是偶数} \\\\
     \pow(b^2,
         \lfloor\frac{e}{2}\rfloor)
-        \cdot b & e \ \text{是奇数} \\
+        \cdot b & e \ \text{是奇数} \\\\
 \end{cases}
 $$
 

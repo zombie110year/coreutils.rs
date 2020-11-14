@@ -11,8 +11,8 @@ $$
 $$
 \def\mul{\operatorname{mul}}
 \mul(a,b) = \begin{cases}
-    \mul(2a, \frac{b}{2}) & b \text{是偶数} \\
-    \mul(2a, \lfloor\frac{b}{2}\rfloor) + a & b \text{是奇数} \\
+    \mul(2a, \frac{b}{2}) & b \text{是偶数} \\\\
+    \mul(2a, \lfloor\frac{b}{2}\rfloor) + a & b \text{是奇数} \\\\
 \end{cases}
 $$
 
