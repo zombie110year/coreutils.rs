@@ -1,81 +1,60 @@
 use clap::{crate_authors, crate_description, crate_name, crate_version};
 use clap::{App, Arg};
 
-use std::collections::BTreeSet;
-
-static mut ERROR_COLLECTOR: Vec<String> = Vec::new();
-
 // ANCHOR: clap_app
 fn get_cli_parser() -> App<'static, 'static> {
     App::new(crate_name!())
         .author(crate_authors!("; "))
         .version(crate_version!())
         .about(crate_description!())
-        .arg(
-            Arg::with_name("NUMBER")
-                .multiple(true)
-                .validator(validate_number),
-        )
+        .arg(Arg::with_name("NUMBER").multiple(true))
 }
 // ANCHOR_END: clap_app
 
 // ANCHOR: validator
-fn validate_number(s: String) -> Result<(), String> {
-    let mut invalid_chars: BTreeSet<usize> = BTreeSet::new();
-    for (i, c) in s.chars().enumerate() {
+fn validate_number(s: &String) -> Result<(), String> {
+    for c in s.chars() {
         match c {
             '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => continue,
-            _ => {
-                invalid_chars.insert(i);
-            }
+            _ => return Err(format!("{:?} is not a valid positive integer", &s)),
         }
     }
-    if invalid_chars.is_empty() {
-        return Ok(());
-    } else {
-        // 用 ANSI Color Sequence 标注原字符串的错误数位
-        let red_begin = "\x1b[31m";
-        let red_end = "\x1b[0m";
-        let mut report = String::with_capacity(s.len());
-        for (i, c) in s.chars().enumerate() {
-            if invalid_chars.contains(&i) {
-                report.push_str(red_begin);
-                report.push(c);
-                report.push_str(red_end);
-            } else {
-                report.push(c);
-            }
-        }
-
-        // 读写 static 变量需要 unsafe
-        unsafe {
-            ERROR_COLLECTOR.push(report);
-        }
-
-        return Ok(());
-    }
+    return Ok(());
 }
 // ANCHOR_END: validator
 
 fn main() {
     let args = get_cli_parser().get_matches();
-    // ANCHOR: true_validate
-    unsafe {
-        if !ERROR_COLLECTOR.is_empty() {
-            eprintln!("Invalid value for '<NUMBER>...':");
-            for msg in ERROR_COLLECTOR.iter() {
-                eprintln!("{}", msg);
-            }
-            std::process::exit(1);
+    if let Some(numbers) = args.values_of("NUMBER") {
+        for n in numbers {
+            check_and_print_factor(n.to_string());
+        }
+    } else {
+        loop {
+            let mut buf = String::new();
+            std::io::stdin().read_line(&mut buf).unwrap();
+            let number = buf.trim();
+            check_and_print_factor(number.to_string());
         }
     }
-    // ANCHOR_END: true_validate
+}
 
-    let numbers: Vec<u64> = args
-        .values_of("NUMBER")
-        .expect("no number input!")
-        .into_iter()
-        .map(|n| n.parse::<u64>().unwrap())
-        .collect();
-    println!("{:?}", numbers);
+fn check_and_print_factor(n: String) {
+    // ANCHOR: true_validate
+    if let Err(msg) = validate_number(&n) {
+        eprintln!("factor: {}", msg);
+    } else {
+        let factors = factor(n.parse().unwrap())
+            .iter()
+            .map(|n| n.to_string())
+            .collect::<Vec<String>>()
+            .join(" ");
+        println!("{}: {}", &n, factors);
+    }
+    // ANCHOR_END: true_validate
+}
+
+// todo
+fn factor(n: u64) -> Vec<u64> {
+    return vec![n];
 }
