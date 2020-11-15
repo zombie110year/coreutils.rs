@@ -3,4 +3,5 @@ members = [
     "yes",
     "factor",
     "fastcalc",
+    "prime",
 ]
