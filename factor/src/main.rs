@@ -1,6 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, crate_version};
 use clap::{App, Arg};
-use fastcalc::isqrt;
+use prime::eratosthenes;
 
 // ANCHOR: clap_app
 fn get_cli_parser() -> App<'static, 'static> {
@@ -66,7 +66,7 @@ fn factor(n: u64) -> Vec<u64> {
 
         while n != 1 {
             for p in map.iter() {
-                let q = gcd(n, *p);
+                let q = gcd(n, *p as u64);
                 if q != 1 {
                     ans.push(q);
                     n /= q;
@@ -90,55 +90,3 @@ fn gcd(a: u64, b: u64) -> u64 {
     return b;
 }
 // ANCHOR_END: gcd
-
-// ANCHOR: eratosthenes
-/// Eratosthenes 筛法求 n 以内的素数表
-/// + 时间复杂度 $O(n^{\frac{3}{2}})$
-/// + 空间复杂度 $O(n)$
-fn eratosthenes(n: usize) -> Vec<u64> {
-    let mut map = vec![true; n + 1];
-    map[0] = false;
-    map[1] = false;
-    // O(\sqrt{n})
-    for i in 2..=isqrt(n as u64) as usize {
-        if map[i] {
-            // O(n)
-            for j in 2..=(n / i) {
-                map[j * i] = false;
-            }
-        }
-    }
-    // O(n)
-    map.iter()
-        .enumerate()
-        .filter(|(_i, b)| **b)
-        .map(|(i, _b)| i as u64)
-        .collect()
-}
-// ANCHOR_END: eratosthenes
-
-/// Polard's rho 算法
-fn polard_rho(n: u64) -> (u64, u64) {
-    let mut x = 2;
-    loop {
-        let y = (x * x + 1) % n;
-        let p = gcd(n, if x > y { x - y } else { y - x });
-        if p > 1 {
-            return (p, n / p);
-        } else {
-            x = y;
-        }
-    }
-}
-
-#[cfg(test)]
-#[test]
-fn test_eratosthenes() {
-    assert_eq!(
-        eratosthenes(100),
-        vec![
-            2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83,
-            89, 97
-        ]
-    )
-}
