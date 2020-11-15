@@ -1,0 +1,11 @@
+[package]
+name = "whoami"
+version = "0.1.0"
+authors = ["zombie110year <zombie110year@outlook.com>"]
+edition = "2018"
+description = "Print the user name associated with the current effective user ID. Same as id -un."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "2"

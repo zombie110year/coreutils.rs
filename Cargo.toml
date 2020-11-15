@@ -2,6 +2,7 @@
 members = [
     "yes",
     "factor",
+    "whoami",
     "fastcalc",
     "prime",
 ]
