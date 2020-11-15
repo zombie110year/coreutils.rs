@@ -1,0 +1,410 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>实现 whoami - Coreutils' 笔记</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="01.what-is-coreutils.html">什么是 Coreutils</a></li><li class="chapter-item expanded affix "><li class="part-title">简单工具的实现</li><li class="chapter-item expanded "><a href="02.impl-yes.html"><strong aria-hidden="true">1.</strong> 实现 yes</a></li><li class="chapter-item expanded "><a href="03.impl-factor.html"><strong aria-hidden="true">2.</strong> 实现 factor</a></li><li class="chapter-item expanded affix "><li class="part-title">POSIX 相关工具的实现</li><li class="chapter-item expanded "><a href="04.impl-whoami.html" class="active"><strong aria-hidden="true">3.</strong> 实现 whoami</a></li><li class="chapter-item expanded affix "><li class="part-title">附录</li><li class="chapter-item expanded "><a href="ext/fastmul.html"><strong aria-hidden="true">4.</strong> 附录：快速乘算法</a></li><li class="chapter-item expanded "><a href="ext/fastpow.html"><strong aria-hidden="true">5.</strong> 附录：快速幂算法</a></li><li class="chapter-item expanded "><a href="ext/isqrt.html"><strong aria-hidden="true">6.</strong> 附录：整数开方</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Coreutils' 笔记</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#实现-whoami" id="实现-whoami">实现 whoami</a></h1>
+<p>whoami 是 POSIX 工具中最简单的之一，其唯一的作用就是显示当前进程所使用的用户名：</p>
+<pre><code class="language-sh">$ whoami
+zom
+</code></pre>
+<p>除了缺省的 <code>--help</code>, <code>--version</code> 之外，也不接受额外的命令行参数。</p>
+<p>GNU Coreutils 中的 whoami 毫无疑问使用了 glibc 功能，因此要在 Rust 中实现此函数，必须要具有 Rust C FFI 的相关知识。</p>
+<h2><a class="header" href="#extern-c" id="extern-c">extern &quot;C&quot;</a></h2>
+<p><code>extern &quot;C&quot;</code> 用来标注某个函数或块中的函数是以 C ABI 导出的，这里特指当前 C 语言编译系统的默认调用协议 <sup class="footnote-reference"><a href="#1">1</a></sup>。在从 Rust 代码中调用 C 函数时，只需要函数签名，函数体会在编译时链接。</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>调用协议主要指函数的参数入栈顺序，&quot;C&quot; 是一个相对的概念，在 GNU/Linux 上指 GCC 所使用的协议，在 Windows 上则指 MSVC 所使用的协议。具体的平台依赖协议主要有 cdecl（32 位）、stdcall（Win32）、win64（Windows 64 位）、sysv64（64 位）、aapcs（ARM）、fastcall 和 vectorcall。</p>
+</div>
+<pre><code class="language-rust ignore">    extern &quot;C&quot; {
+        /// `uid_t geteuid(void);`
+        fn geteuid() -&gt; uid_t;
+        /// `struct passwd* geteuid(uid_t);`
+        fn getpwuid(uid: uid_t) -&gt; *const Passwd;
+    }
+</code></pre>
+<p>由于 libc 是 C 编译器默认链接的，因此不需要进行额外的设置，否则需要标注 <a href="https://doc.rust-lang.org/reference/items/external-blocks.html?highlight=#%5Blink#the-link-attribute"><code>link</code> 属性</a>，并指定库名。</p>
+<pre><code class="language-rust ignore">// name = example =&gt; libexample.so
+#[link(name = &quot;example&quot;)]
+extern &quot;C&quot; {
+    // ...
+}
+</code></pre>
+<p>注意，所有 extern 函数都只能在 unsafe 块中被调用。</p>
+<h2><a class="header" href="#posixuid" id="posixuid">POSIX：uid</a></h2>
+<p>在 POSIX 规范下，每个进程使用一个 uid，而一个 uid 与一名用户一一对应，该用户的用户名存储在 <code>/etc/passwd</code> 文件中。
+在 <code>/etc/passwd</code> 文件中，每一行存储了一名用户的信息，各字段用 <code>:</code> 分隔：</p>
+<pre><code>&lt;name&gt;:&lt;uid&gt;:&lt;gid&gt;:&lt;comment&gt;:&lt;home&gt;:&lt;shell&gt;
+</code></pre>
+<p>可以使用 libc 中的 <code>geteuid</code> 获得当前使用的（effective） UID，这在 glibc 中是一个 <code>uid_t</code> 类型的整数，实际上实现为 <code>unsigned int</code> 类型。
+然后，我们不应当主动从 <code>/etc/passwd</code> 文件中读取并解析数据，而是应当调用名为 <code>getpwuid</code> 的函数，它会返回一个解析完毕的 <code>struct passwd*</code> 对象。
+在 <code>struct passwd</code> 结构体中，就存储了用户名信息。</p>
+<h2><a class="header" href="#处理类型" id="处理类型">处理类型</a></h2>
+<p>在 <code>std::os::raw</code> 中存储了大量原始类型定义，在 whoami 中，只需要用到 <code>c_uint</code> 和 <code>c_char</code>：</p>
+<pre><code class="language-rust ignore">    use std::os::raw::c_char;
+    /// 根据 POSIX 标准，uid_t, gid_t 是 32 位整数，但未提及有无符号；
+    /// 在 glibc 中的实现是 unsigned int
+    use std::os::raw::{c_uint as uid_t, c_uint as gid_t};
+</code></pre>
+<p>而在与 C 函数沟通时，需要使用 <strong>原始指针</strong>，原始指针的类型用 <code>*const T</code> 或 <code>*mut T</code> 表示，两者的区别在于指针所指向的地址是否可写。</p>
+<h2><a class="header" href="#结构体布局" id="结构体布局">结构体布局</a></h2>
+<p>首先，需要知道一个基本知识 <strong>结构体对齐</strong>。在一个结构体中，各个长度不同的字段不是紧密排列的，一般会根据当前处理器的字长对齐字段，而 C 和 Rust 对各自结构的对齐策略不一定相同，需要标注 <code>repr</code> 属性，令 Rust 以 C 的规则对齐结构体：</p>
+<pre><code class="language-rust ignore">    #[repr(C)]
+    struct Passwd {
+        name: *const c_char,
+        passwd: *const c_char,
+        uid: uid_t,
+        gid: gid_t,
+        gecos: *const c_char,
+        dir: *const c_char,
+        shell: *const c_char,
+    }
+</code></pre>
+<p>关于 <code>struct passwd</code> 的结构，其官方文档位于 <a href="https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_608.html">https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_608.html</a>。</p>
+<h2><a class="header" href="#c-风格错误处理" id="c-风格错误处理">C 风格错误处理</a></h2>
+<p>在 C 语言中，一般以返回一个正常情况下不可能得到的值来表示发生了错误，例如 <code>geteuid</code> 会在错误时返回 <code>(unsigned int) -1</code>，由于 C 语言中的整数运算是允许溢出的，这等效于 Rust 中的 <code>1u32.wrapping_neg()</code>，或者是它的结果 <code>std::u32::MAX</code>；</p>
+<pre><code class="language-rust ignore">            let uid = geteuid();
+            if uid == std::u32::MAX {
+                return Err(Error::last_os_error());
+            }
+</code></pre>
+<p>而对于返回指针的函数，其错误的结果一般是 <code>(void *) 0</code>，即 <code>NULL</code> 宏，对于 Rust 而言，可以对任意原始指针调用 <code>.is_null()</code> 方法来检测它是否是空指针。</p>
+<pre><code class="language-rust ignore">            let pw = getpwuid(uid);
+            if pw.is_null() {
+                return Err(Error::last_os_error());
+            }
+</code></pre>
+<h2><a class="header" href="#转换字符串" id="转换字符串">转换字符串</a></h2>
+<p>C 字符串是一个以 <code>char *</code> 记录首地址，以 <code>\0</code> 标记尾部的字节数组，Rust 提供了 <code>std::ffi::CStr</code> 类型来从一个字节数组读取字符串，其结果实际上也是以字节为基础的，无法确定能否编码为字符。之后调用 <code>String::from_utf8_lossy</code> 将其编码为字符串，如果有错误的字节，则会被忽略。</p>
+<pre><code class="language-rust ignore">            let name = std::ffi::CStr::from_ptr((*pw).name).to_bytes();
+            let name = String::from_utf8_lossy(name).to_string();
+</code></pre>
+<h2><a class="header" href="#条件编译" id="条件编译">条件编译</a></h2>
+<p>由于 Linux 和 Windows 等系统的环境不一样，且 whoami 是高度依赖 glibc API 的，因此在 Windows 下甚至无法完成编译。在程序内通过标注 <code>cfg</code> 属性，可以告知编译器仅在内部表达式为真的情况下编译代码。一条标注影响最近邻的行或块：</p>
+<pre><code class="language-rust ignore">#[cfg(target_os = &quot;linux)]
+</code></pre>
+<h1><a class="header" href="#完整代码" id="完整代码">完整代码</a></h1>
+<pre><code class="language-rust ignore">//! # whoami
+//! 显示当前进程所激活的用户名
+
+use clap::App;
+use clap::{crate_authors, crate_description, crate_name, crate_version};
+
+fn cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .author(crate_authors!(&quot;;&quot;))
+        .version(crate_version!())
+        .about(crate_description!())
+}
+
+fn main() {
+    cli_parser().get_matches();
+
+    match os_whoami() {
+        Ok(name) =&gt; println!(&quot;{}&quot;, name),
+        Err(e) =&gt; panic!(&quot;{:?}&quot;, e),
+    }
+}
+
+#[cfg(target_os = &quot;linux&quot;)]
+use self::posix::os_whoami;
+
+#[cfg(target_os = &quot;linux&quot;)]
+mod posix {
+    use std::io::Error;
+
+    pub fn os_whoami() -&gt; Result&lt;String, Error&gt; {
+        let name = unsafe {
+            // ANCHOR: c_err1
+            let uid = geteuid();
+            if uid == std::u32::MAX {
+                return Err(Error::last_os_error());
+            }
+            // ANCHOR_END: c_err1
+
+            // ANCHOR: c_err2
+            let pw = getpwuid(uid);
+            if pw.is_null() {
+                return Err(Error::last_os_error());
+            }
+            // ANCHOR_END: c_err2
+
+            // ANCHOR: c_str
+            let name = std::ffi::CStr::from_ptr((*pw).name).to_bytes();
+            let name = String::from_utf8_lossy(name).to_string();
+            // ANCHOR_END: c_str
+            name
+        };
+
+        Ok(name)
+    }
+
+    // ANCHOR: c_types
+    use std::os::raw::c_char;
+    /// 根据 POSIX 标准，uid_t, gid_t 是 32 位整数，但未提及有无符号；
+    /// 在 glibc 中的实现是 unsigned int
+    use std::os::raw::{c_uint as uid_t, c_uint as gid_t};
+    // ANCHOR_END: c_types
+
+    /// 参考文档：[The Data Structure that Describes a User](https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_608.html)
+    /// 用来描述 /etc/passwd 中的条目
+    // ANCHOR: struct_align
+    #[repr(C)]
+    struct Passwd {
+        name: *const c_char,
+        passwd: *const c_char,
+        uid: uid_t,
+        gid: gid_t,
+        gecos: *const c_char,
+        dir: *const c_char,
+        shell: *const c_char,
+    }
+    // ANCHOR_END: struct_align
+
+    // ANCHOR: extern_c
+    extern &quot;C&quot; {
+        /// `uid_t geteuid(void);`
+        fn geteuid() -&gt; uid_t;
+        /// `struct passwd* geteuid(uid_t);`
+        fn getpwuid(uid: uid_t) -&gt; *const Passwd;
+    }
+    // ANCHOR_END: extern_c
+}
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="03.impl-factor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="ext/fastmul.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="03.impl-factor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="ext/fastmul.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -1,0 +1,1052 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Coreutils' 笔记</title>
+        
+        <meta name="robots" content="noindex" />
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="01.what-is-coreutils.html">什么是 Coreutils</a></li><li class="chapter-item expanded affix "><li class="part-title">简单工具的实现</li><li class="chapter-item expanded "><a href="02.impl-yes.html"><strong aria-hidden="true">1.</strong> 实现 yes</a></li><li class="chapter-item expanded "><a href="03.impl-factor.html"><strong aria-hidden="true">2.</strong> 实现 factor</a></li><li class="chapter-item expanded affix "><li class="part-title">POSIX 相关工具的实现</li><li class="chapter-item expanded "><a href="04.impl-whoami.html"><strong aria-hidden="true">3.</strong> 实现 whoami</a></li><li class="chapter-item expanded affix "><li class="part-title">附录</li><li class="chapter-item expanded "><a href="ext/fastmul.html"><strong aria-hidden="true">4.</strong> 附录：快速乘算法</a></li><li class="chapter-item expanded "><a href="ext/fastpow.html"><strong aria-hidden="true">5.</strong> 附录：快速幂算法</a></li><li class="chapter-item expanded "><a href="ext/isqrt.html"><strong aria-hidden="true">6.</strong> 附录：整数开方</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Coreutils' 笔记</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#用-rust-重新实现-coreutils" id="用-rust-重新实现-coreutils">用 Rust 重新实现 coreutils</a></h1>
+<p>首先介绍 GNU 的原版 coreutils，然后在 Rust 中重新实现。</p>
+<h2><a class="header" href="#什么是-coreutils" id="什么是-coreutils">什么是 coreutils</a></h2>
+<p>coreutils 是 GNU 为 Linux 系统编写的一套基本应用程序，其源代码可以在 <a href="https://github.com/coreutils/coreutils">GitHub:coreutils/coreutils</a> 上找到，文档位于 <a href="https://www.gnu.org/software/coreutils/coreutils.html">https://www.gnu.org/software/coreutils/coreutils.html</a>。coreutils 包含的组件有：</p>
+<table><thead><tr><th align="center">实现情况</th><th align="center">工具</th><th>简介</th></tr></thead><tbody>
+<tr><td align="center"></td><td align="center">arch</td><td></td></tr>
+<tr><td align="center"></td><td align="center">base64</td><td></td></tr>
+<tr><td align="center"></td><td align="center">basename</td><td></td></tr>
+<tr><td align="center"></td><td align="center">cat</td><td></td></tr>
+<tr><td align="center"></td><td align="center">chcon</td><td></td></tr>
+<tr><td align="center"></td><td align="center">chgrp</td><td></td></tr>
+<tr><td align="center"></td><td align="center">chmod</td><td></td></tr>
+<tr><td align="center"></td><td align="center">chown</td><td></td></tr>
+<tr><td align="center"></td><td align="center">chroot</td><td></td></tr>
+<tr><td align="center"></td><td align="center">cksum</td><td></td></tr>
+<tr><td align="center"></td><td align="center">comm</td><td></td></tr>
+<tr><td align="center"></td><td align="center">cp</td><td></td></tr>
+<tr><td align="center"></td><td align="center">csplit</td><td></td></tr>
+<tr><td align="center"></td><td align="center">cut</td><td></td></tr>
+<tr><td align="center"></td><td align="center">date</td><td></td></tr>
+<tr><td align="center"></td><td align="center">dd</td><td></td></tr>
+<tr><td align="center"></td><td align="center">df</td><td></td></tr>
+<tr><td align="center"></td><td align="center">dir</td><td></td></tr>
+<tr><td align="center"></td><td align="center">dircolors</td><td></td></tr>
+<tr><td align="center"></td><td align="center">dirname</td><td></td></tr>
+<tr><td align="center"></td><td align="center">du</td><td></td></tr>
+<tr><td align="center"></td><td align="center">echo</td><td></td></tr>
+<tr><td align="center"></td><td align="center">env</td><td></td></tr>
+<tr><td align="center"></td><td align="center">expand</td><td></td></tr>
+<tr><td align="center"></td><td align="center">expr</td><td></td></tr>
+<tr><td align="center">半成品</td><td align="center">factor</td><td>分解质因数</td></tr>
+<tr><td align="center"></td><td align="center">false</td><td></td></tr>
+<tr><td align="center"></td><td align="center">fmt</td><td></td></tr>
+<tr><td align="center"></td><td align="center">fold</td><td></td></tr>
+<tr><td align="center"></td><td align="center">groups</td><td></td></tr>
+<tr><td align="center"></td><td align="center">head</td><td></td></tr>
+<tr><td align="center"></td><td align="center">hostid</td><td></td></tr>
+<tr><td align="center"></td><td align="center">hostname</td><td></td></tr>
+<tr><td align="center"></td><td align="center">id</td><td></td></tr>
+<tr><td align="center"></td><td align="center">install</td><td></td></tr>
+<tr><td align="center"></td><td align="center">join</td><td></td></tr>
+<tr><td align="center"></td><td align="center">kill</td><td></td></tr>
+<tr><td align="center"></td><td align="center">link</td><td></td></tr>
+<tr><td align="center"></td><td align="center">ln</td><td></td></tr>
+<tr><td align="center"></td><td align="center">logname</td><td></td></tr>
+<tr><td align="center"></td><td align="center">ls</td><td></td></tr>
+<tr><td align="center"></td><td align="center">md5sum</td><td></td></tr>
+<tr><td align="center"></td><td align="center">mkdir</td><td></td></tr>
+<tr><td align="center"></td><td align="center">mkfifo</td><td></td></tr>
+<tr><td align="center"></td><td align="center">mknod</td><td></td></tr>
+<tr><td align="center"></td><td align="center">mktemp</td><td></td></tr>
+<tr><td align="center"></td><td align="center">mv</td><td></td></tr>
+<tr><td align="center"></td><td align="center">nice</td><td></td></tr>
+<tr><td align="center"></td><td align="center">nl</td><td></td></tr>
+<tr><td align="center"></td><td align="center">nohup</td><td></td></tr>
+<tr><td align="center"></td><td align="center">nproc</td><td></td></tr>
+<tr><td align="center"></td><td align="center">numfmt</td><td></td></tr>
+<tr><td align="center"></td><td align="center">od</td><td></td></tr>
+<tr><td align="center"></td><td align="center">paste</td><td></td></tr>
+<tr><td align="center"></td><td align="center">pathchk</td><td></td></tr>
+<tr><td align="center"></td><td align="center">pinky</td><td></td></tr>
+<tr><td align="center"></td><td align="center">pr</td><td></td></tr>
+<tr><td align="center"></td><td align="center">printenv</td><td></td></tr>
+<tr><td align="center"></td><td align="center">printf</td><td></td></tr>
+<tr><td align="center"></td><td align="center">ptx</td><td></td></tr>
+<tr><td align="center"></td><td align="center">pwd</td><td></td></tr>
+<tr><td align="center"></td><td align="center">readlink</td><td></td></tr>
+<tr><td align="center"></td><td align="center">realpath</td><td></td></tr>
+<tr><td align="center"></td><td align="center">rm</td><td></td></tr>
+<tr><td align="center"></td><td align="center">rmdir</td><td></td></tr>
+<tr><td align="center"></td><td align="center">runcon</td><td></td></tr>
+<tr><td align="center"></td><td align="center">seq</td><td></td></tr>
+<tr><td align="center"></td><td align="center">shred</td><td></td></tr>
+<tr><td align="center"></td><td align="center">shuf</td><td></td></tr>
+<tr><td align="center"></td><td align="center">sleep</td><td></td></tr>
+<tr><td align="center"></td><td align="center">sort</td><td></td></tr>
+<tr><td align="center"></td><td align="center">split</td><td></td></tr>
+<tr><td align="center"></td><td align="center">stat</td><td></td></tr>
+<tr><td align="center"></td><td align="center">stdbuf</td><td></td></tr>
+<tr><td align="center"></td><td align="center">stty</td><td></td></tr>
+<tr><td align="center"></td><td align="center">sum</td><td></td></tr>
+<tr><td align="center"></td><td align="center">tac</td><td></td></tr>
+<tr><td align="center"></td><td align="center">tail</td><td></td></tr>
+<tr><td align="center"></td><td align="center">tee</td><td></td></tr>
+<tr><td align="center"></td><td align="center">test</td><td></td></tr>
+<tr><td align="center"></td><td align="center">timeout</td><td></td></tr>
+<tr><td align="center"></td><td align="center">touch</td><td></td></tr>
+<tr><td align="center"></td><td align="center">tr</td><td></td></tr>
+<tr><td align="center"></td><td align="center">true</td><td></td></tr>
+<tr><td align="center"></td><td align="center">truncate</td><td></td></tr>
+<tr><td align="center"></td><td align="center">tsort</td><td></td></tr>
+<tr><td align="center"></td><td align="center">tty</td><td></td></tr>
+<tr><td align="center"></td><td align="center">uname</td><td></td></tr>
+<tr><td align="center"></td><td align="center">unexpand</td><td></td></tr>
+<tr><td align="center"></td><td align="center">uniq</td><td></td></tr>
+<tr><td align="center"></td><td align="center">unlink</td><td></td></tr>
+<tr><td align="center"></td><td align="center">uptime</td><td></td></tr>
+<tr><td align="center"></td><td align="center">users</td><td></td></tr>
+<tr><td align="center"></td><td align="center">vdir</td><td></td></tr>
+<tr><td align="center"></td><td align="center">wc</td><td></td></tr>
+<tr><td align="center"></td><td align="center">who</td><td></td></tr>
+<tr><td align="center">完成</td><td align="center">whoami</td><td>当前进程所使用的用户名</td></tr>
+<tr><td align="center">完成</td><td align="center">yes</td><td>重复输出字符串直到进程被终止</td></tr>
+</tbody></table>
+<h1><a class="header" href="#实现-yes" id="实现-yes">实现 yes</a></h1>
+<p>yes 的作用是将输入的字符串无限重复输出至 stdout，直到它被终止为止。</p>
+<p>而根据 coreutils 所遵守的共同规范，除了实现上述功能之外，还需要：</p>
+<ol>
+<li>提供标准的 <code>--help</code>, <code>--version</code>, <code>--</code> 命令行解析；</li>
+<li>提供标准的进程返回码：当成功退出时，为 0，当失败或错误时，为非零值；</li>
+</ol>
+<h2><a class="header" href="#命令行参数解析" id="命令行参数解析">命令行参数解析</a></h2>
+<p>这里可以使用 Rust 中非常流行的 clap 库，目前（2020/11/14），clap 库的最新版本为 <code>2.33.3</code>，在添加为依赖时，可以宽松一点，只要求主版本号为 <code>2</code> 即可：</p>
+<pre><code class="language-toml">// [dependencies]
+clap = &quot;2&quot;
+</code></pre>
+<p>clap 会自动地实现 <code>--version</code>, <code>--help</code>, 和 <code>--</code> 解析功能，只需要在解析器对象上添加相关属性即可。在 <code>yes/src/main.rs</code> 中，配置命令行解析器：</p>
+<pre><code class="language-rust ignore">use clap::{crate_version, crate_authors, crate_description, crate_name};
+use clap::{App, Arg};
+
+fn get_cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .version(crate_version!())
+        .author(crate_authors!(&quot;; &quot;))
+        .about(crate_description!())
+        .arg(Arg::with_name(&quot;STRING&quot;).multiple(true))
+}
+</code></pre>
+<ol>
+<li>clap 库的解析器为一个 App 对象，它需要引用两类字符串，在一般的命令行工具中，这些字符串都是以静态数据的方式存储在二进制文件里的，因此可以用 <code>'static</code> 生命周期</li>
+<li>clap 提供了名为 <code>crate_version!</code>,<code>crate_name!</code>,<code>crate_description!</code>,<code>crate_name!</code> 一系列宏，来从当前 crate 的 Cargo.toml 文件中读取对应字段的值</li>
+<li>Arg 对象表示一个需要解析的参数，通过 <code>Arg::with_name</code> 设置该参数的标识符，在匹配之后，通过此标识符来寻找到该参数
+<ul>
+<li>在未设置 <code>short</code> 和 <code>long</code> 的情况下，参数将为 <strong>位置参数</strong>，根据传入时的位置进行匹配</li>
+<li><code>.multiple(true)</code> 表示此参数有多个值，命令行以 <code> </code>（空格）作为值的分隔符</li>
+</ul>
+</li>
+</ol>
+<pre><code class="language-rust ignore">fn main() {
+    let args = get_cli_parser().get_matches();
+    let text = if let Some(texts) = args.values_of(&quot;STRING&quot;) {
+        let texts: Vec&lt;&amp;str&gt; = texts.into_iter().collect();
+        texts.join(&quot; &quot;).to_string()
+    } else {
+        String::new()
+    };
+
+    loop {
+        println!(&quot;{}&quot;, text);
+    }
+}
+</code></pre>
+<ol>
+<li>App 对象提供了 <code>get_matches</code> 方法，执行时解析传入的命令行参数，这会返回一个 AppMatch 对象</li>
+<li>要取得值，需要根据标识符取得，如果该参数设置了 <code>multiple</code>，则应当使用 <code>values_of</code>，否则使用 <code>value_of</code></li>
+<li><code>values_of</code> 返回 <code>Option&lt;Values&gt;</code> 类型的对象，<code>Values</code> 可以转换为一个迭代器，一般会读入一个 Vec 对象中方便后续引用。而当没有匹配到命令行参数时，它将返回 <code>None</code>。</li>
+</ol>
+<h2><a class="header" href="#功能实现" id="功能实现">功能实现</a></h2>
+<p>yes 的功能算是非常简单了，一个无限循环即可。</p>
+<pre><code class="language-rust ignore">loop {
+    println!(&quot;{}&quot;, text);
+}
+</code></pre>
+<h1><a class="header" href="#完整代码" id="完整代码">完整代码</a></h1>
+<pre><code class="language-rust ignore">// ANCHOR: clap_app
+use clap::{crate_version, crate_authors, crate_description, crate_name};
+use clap::{App, Arg};
+
+fn get_cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .version(crate_version!())
+        .author(crate_authors!(&quot;; &quot;))
+        .about(crate_description!())
+        .arg(Arg::with_name(&quot;STRING&quot;).multiple(true))
+}
+// ANCHOR_END: clap_app
+
+// ANCHOR: main
+fn main() {
+    let args = get_cli_parser().get_matches();
+    let text = if let Some(texts) = args.values_of(&quot;STRING&quot;) {
+        let texts: Vec&lt;&amp;str&gt; = texts.into_iter().collect();
+        texts.join(&quot; &quot;).to_string()
+    } else {
+        String::new()
+    };
+
+    loop {
+        println!(&quot;{}&quot;, text);
+    }
+}
+// ANCHOR_END: main
+</code></pre>
+<h1><a class="header" href="#实现-factor" id="实现-factor">实现 factor</a></h1>
+<p>factor 的作用是：从命令行读取数字，分解质因数并打印在 stdout。可以同时传入多个数字，将每个数字分别分解并打印。
+如果未从命令行中传入数字，则转而从 stdin 读取。</p>
+<pre><code>$ factor 123 321
+123: 3 41
+321: 3 107
+</code></pre>
+<h2><a class="header" href="#解析命令行参数" id="解析命令行参数">解析命令行参数</a></h2>
+<p>除了和 <a href="./02.impl-yes.html">yes</a> 相同的部分之外，这里介绍一下 <code>validator</code>。</p>
+<p>顾名思义，<code>validator</code> 是用于检验参数的，它需要一个函数或闭包，接受 <code>String</code> 类型的参数，输出 <code>Result&lt;(), String&gt;</code>。当输出为 <code>Ok(())</code> 时，表明该参数通过检验，当输出为 <code>Err(String)</code> 时，表示该参数不能通过检验，并提供错误信息。</p>
+<pre><code class="language-rust ignore">fn(String) -&gt; Result&lt;(), String&gt;
+</code></pre>
+<p>我们在这里检验的目的是，确定输入的参数是数字，如果不是数字，则报错。</p>
+<pre><code class="language-rust ignore">fn validate_number(s: &amp;String) -&gt; Result&lt;(), String&gt; {
+    for c in s.chars() {
+        match c {
+            '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' =&gt; continue,
+            _ =&gt; return Err(format!(&quot;{:?} is not a valid positive integer&quot;, &amp;s)),
+        }
+    }
+    return Ok(());
+}
+</code></pre>
+<p>在报错时，validator 会在返回这样的报错消息：</p>
+<pre><code>&quot;xxx&quot; is not a valid positive integer
+</code></pre>
+<p>为了和原版 factor 的行为保持一致，我们在 main 函数中依次检验：</p>
+<pre><code class="language-rust ignore">    if let Err(msg) = validate_number(&amp;n) {
+        eprintln!(&quot;factor: {}&quot;, msg);
+    } else {
+        let factors = factor(n.parse().unwrap())
+            .iter()
+            .map(|n| n.to_string())
+            .collect::&lt;Vec&lt;String&gt;&gt;()
+            .join(&quot; &quot;);
+        println!(&quot;{}: {}&quot;, &amp;n, factors);
+    }
+</code></pre>
+<h2><a class="header" href="#从-stdin-读取数字" id="从-stdin-读取数字">从 stdin 读取数字</a></h2>
+<p>从 stdin 中读取一行很简单：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>loop {
+    let mut buf = String::new();
+    let read_size = std::io::stdin().read_line(&amp;mut buf).unwrap();
+    if read_size == 0 {
+        break
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>这样，当输入 NULL 字符时，循环终止。</p>
+<h2><a class="header" href="#分解质因数" id="分解质因数">分解质因数</a></h2>
+<p>在使用更高深的数学知识之前，我们先使用高中时学过的「辗转相除法」来进行因数分解，并使用「Eratosthenes 筛法」来检测素数。</p>
+<h3><a class="header" href="#辗转相除法" id="辗转相除法">辗转相除法</a></h3>
+<ol>
+<li>设有两非零正整数 \(a_1, b_1\) 且 \(a_1 &gt; b_1\)，则取 \(p_1 = a_1 \mod b_1\)
+<ol start="2">
+<li>如果 \(p_1 = 0\)，则说明 \(b_1\) 能整除 \(a_1\)，是 \(a_1\) 的因子</li>
+<li>如果 \(p_1 \ne 0\)，则令 \(a_2 = b_1, b_2 = p_1\) 继续取 \(p_2 = a_2 \mod b_2\)，以此类推，直到 \(p_n = 0\) 为止</li>
+</ol>
+</li>
+</ol>
+<p>设 \(p\) 为 \(a, b\) 的因子，则有 \(a = pm, b = pn\)，则辗转相除的过程中，有 \(|m' - n'| \to 1\)，即可求出因子 \(p\)。</p>
+<p>递归实现：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn gcd(a: u64, b: u64) -&gt; u64 {
+    let p = if a &gt; b { a % b } else { b % a };
+    if p == 0 {
+        b
+    } else {
+        gcd(b, p)
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<pre><code class="language-rust ignore">fn gcd(a: u64, b: u64) -&gt; u64 {
+    let (mut a, mut b) = if a &lt; b { (b, a) } else { (a, b) };
+    while a % b != 0 {
+        let t = b;
+        b = a % b;
+        a = t;
+    }
+    return b;
+}
+</code></pre>
+<h3><a class="header" href="#eratosthenes-法" id="eratosthenes-法">Eratosthenes 法</a></h3>
+<p>古希腊数学家 Eratosthenes 先将一定范围内的数全部列出（\(N\)），然后从 2 开始，逐个将 2 的倍数排除；然后剩下的部分第一位是 3，再排除倍数；然后剩下的第一位是 5，再排除……以此类推。</p>
+<p>用 Python 风格的伪代码表示如下：</p>
+<pre><code class="language-python"># 筛表
+table = [True for _ in range(n)]
+# 排除 0 和 1
+table[0] = False
+table[1] = False
+
+# 从 2 开始
+head = 2
+# head 是素数
+while table[head] is True:
+    # head 的倍数都不是素数
+    for notprime in range(2*head, n, head):
+        table[notprime] = False
+    # 取筛一回合之后，剩下的第一个素数继续筛选，直到筛选完毕
+    try:
+        head = table.index(True, head + 1)
+    except ValueError: # True not in list
+        break
+
+# 素数数列
+primes = [i for i in range(n) if table[i] is True]
+</code></pre>
+<p>Rust 实现：</p>
+<pre><code class="language-rust ignore">pub fn eratosthenes(n: usize) -&gt; Vec&lt;usize&gt; {
+    let n = n.into();
+    let mut table = vec![true; n];
+    table[0] = false;
+    table[1] = false;
+    let mut head = 2;
+    'prime: while table[head] {
+        for notprime in (2 * head..n).step_by(head) {
+            table[notprime] = false;
+        }
+        for next_prime in (head + 1)..n {
+            if table[next_prime] {
+                head = next_prime;
+                continue 'prime;
+            }
+        }
+        break;
+    }
+
+    let primes = table
+        .iter()
+        .enumerate()
+        .filter(|(_, b)| **b)
+        .map(|(i, _)| i)
+        .collect();
+
+    return primes;
+}
+</code></pre>
+<p>现在，我们的 factor 就已经可以用了。遗憾的是，由于内存空间的限制，无法求解大于当前内存字节数的数。</p>
+<p>为了求解较大的数，我们还需要了解一下 Pollard's rho 算法 或 Shanks' square forms factorization。而要求解超过 u64 范围的整数，那么更需要了解一下大整数模拟，例如 C 语言所使用的 libgmp。</p>
+<h1><a class="header" href="#完整代码-1" id="完整代码-1">完整代码</a></h1>
+<pre><code class="language-rust ignore">use clap::{crate_authors, crate_description, crate_name, crate_version};
+use clap::{App, Arg};
+use prime::eratosthenes;
+
+// ANCHOR: clap_app
+fn get_cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .author(crate_authors!(&quot;; &quot;))
+        .version(crate_version!())
+        .about(crate_description!())
+        .arg(Arg::with_name(&quot;NUMBER&quot;).multiple(true))
+}
+// ANCHOR_END: clap_app
+
+// ANCHOR: validator
+fn validate_number(s: &amp;String) -&gt; Result&lt;(), String&gt; {
+    for c in s.chars() {
+        match c {
+            '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' =&gt; continue,
+            _ =&gt; return Err(format!(&quot;{:?} is not a valid positive integer&quot;, &amp;s)),
+        }
+    }
+    return Ok(());
+}
+// ANCHOR_END: validator
+
+fn main() {
+    let args = get_cli_parser().get_matches();
+    if let Some(numbers) = args.values_of(&quot;NUMBER&quot;) {
+        for n in numbers {
+            check_and_print_factor(n.to_string());
+        }
+    } else {
+        loop {
+            let mut buf = String::new();
+            std::io::stdin().read_line(&amp;mut buf).unwrap();
+            let number = buf.trim();
+            check_and_print_factor(number.to_string());
+        }
+    }
+}
+
+fn check_and_print_factor(n: String) {
+    // ANCHOR: true_validate
+    if let Err(msg) = validate_number(&amp;n) {
+        eprintln!(&quot;factor: {}&quot;, msg);
+    } else {
+        let factors = factor(n.parse().unwrap())
+            .iter()
+            .map(|n| n.to_string())
+            .collect::&lt;Vec&lt;String&gt;&gt;()
+            .join(&quot; &quot;);
+        println!(&quot;{}: {}&quot;, &amp;n, factors);
+    }
+    // ANCHOR_END: true_validate
+}
+
+// todo
+fn factor(n: u64) -&gt; Vec&lt;u64&gt; {
+    if n &lt; 4 {
+        return vec![n];
+    } else {
+        let map = eratosthenes(n as usize);
+        let mut ans = Vec::new();
+        let mut n = n;
+
+        while n != 1 {
+            for p in map.iter() {
+                let q = gcd(n, *p as u64);
+                if q != 1 {
+                    ans.push(q);
+                    n /= q;
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+
+// ANCHOR: gcd
+fn gcd(a: u64, b: u64) -&gt; u64 {
+    let (mut a, mut b) = if a &lt; b { (b, a) } else { (a, b) };
+    while a % b != 0 {
+        let t = b;
+        b = a % b;
+        a = t;
+    }
+    return b;
+}
+// ANCHOR_END: gcd
+</code></pre>
+<h1><a class="header" href="#实现-whoami" id="实现-whoami">实现 whoami</a></h1>
+<p>whoami 是 POSIX 工具中最简单的之一，其唯一的作用就是显示当前进程所使用的用户名：</p>
+<pre><code class="language-sh">$ whoami
+zom
+</code></pre>
+<p>除了缺省的 <code>--help</code>, <code>--version</code> 之外，也不接受额外的命令行参数。</p>
+<p>GNU Coreutils 中的 whoami 毫无疑问使用了 glibc 功能，因此要在 Rust 中实现此函数，必须要具有 Rust C FFI 的相关知识。</p>
+<h2><a class="header" href="#extern-c" id="extern-c">extern &quot;C&quot;</a></h2>
+<p><code>extern &quot;C&quot;</code> 用来标注某个函数或块中的函数是以 C ABI 导出的，这里特指当前 C 语言编译系统的默认调用协议 <sup class="footnote-reference"><a href="#1">1</a></sup>。在从 Rust 代码中调用 C 函数时，只需要函数签名，函数体会在编译时链接。</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>调用协议主要指函数的参数入栈顺序，&quot;C&quot; 是一个相对的概念，在 GNU/Linux 上指 GCC 所使用的协议，在 Windows 上则指 MSVC 所使用的协议。具体的平台依赖协议主要有 cdecl（32 位）、stdcall（Win32）、win64（Windows 64 位）、sysv64（64 位）、aapcs（ARM）、fastcall 和 vectorcall。</p>
+</div>
+<pre><code class="language-rust ignore">    extern &quot;C&quot; {
+        /// `uid_t geteuid(void);`
+        fn geteuid() -&gt; uid_t;
+        /// `struct passwd* geteuid(uid_t);`
+        fn getpwuid(uid: uid_t) -&gt; *const Passwd;
+    }
+</code></pre>
+<p>由于 libc 是 C 编译器默认链接的，因此不需要进行额外的设置，否则需要标注 <a href="https://doc.rust-lang.org/reference/items/external-blocks.html?highlight=#%5Blink#the-link-attribute"><code>link</code> 属性</a>，并指定库名。</p>
+<pre><code class="language-rust ignore">// name = example =&gt; libexample.so
+#[link(name = &quot;example&quot;)]
+extern &quot;C&quot; {
+    // ...
+}
+</code></pre>
+<p>注意，所有 extern 函数都只能在 unsafe 块中被调用。</p>
+<h2><a class="header" href="#posixuid" id="posixuid">POSIX：uid</a></h2>
+<p>在 POSIX 规范下，每个进程使用一个 uid，而一个 uid 与一名用户一一对应，该用户的用户名存储在 <code>/etc/passwd</code> 文件中。
+在 <code>/etc/passwd</code> 文件中，每一行存储了一名用户的信息，各字段用 <code>:</code> 分隔：</p>
+<pre><code>&lt;name&gt;:&lt;uid&gt;:&lt;gid&gt;:&lt;comment&gt;:&lt;home&gt;:&lt;shell&gt;
+</code></pre>
+<p>可以使用 libc 中的 <code>geteuid</code> 获得当前使用的（effective） UID，这在 glibc 中是一个 <code>uid_t</code> 类型的整数，实际上实现为 <code>unsigned int</code> 类型。
+然后，我们不应当主动从 <code>/etc/passwd</code> 文件中读取并解析数据，而是应当调用名为 <code>getpwuid</code> 的函数，它会返回一个解析完毕的 <code>struct passwd*</code> 对象。
+在 <code>struct passwd</code> 结构体中，就存储了用户名信息。</p>
+<h2><a class="header" href="#处理类型" id="处理类型">处理类型</a></h2>
+<p>在 <code>std::os::raw</code> 中存储了大量原始类型定义，在 whoami 中，只需要用到 <code>c_uint</code> 和 <code>c_char</code>：</p>
+<pre><code class="language-rust ignore">    use std::os::raw::c_char;
+    /// 根据 POSIX 标准，uid_t, gid_t 是 32 位整数，但未提及有无符号；
+    /// 在 glibc 中的实现是 unsigned int
+    use std::os::raw::{c_uint as uid_t, c_uint as gid_t};
+</code></pre>
+<p>而在与 C 函数沟通时，需要使用 <strong>原始指针</strong>，原始指针的类型用 <code>*const T</code> 或 <code>*mut T</code> 表示，两者的区别在于指针所指向的地址是否可写。</p>
+<h2><a class="header" href="#结构体布局" id="结构体布局">结构体布局</a></h2>
+<p>首先，需要知道一个基本知识 <strong>结构体对齐</strong>。在一个结构体中，各个长度不同的字段不是紧密排列的，一般会根据当前处理器的字长对齐字段，而 C 和 Rust 对各自结构的对齐策略不一定相同，需要标注 <code>repr</code> 属性，令 Rust 以 C 的规则对齐结构体：</p>
+<pre><code class="language-rust ignore">    #[repr(C)]
+    struct Passwd {
+        name: *const c_char,
+        passwd: *const c_char,
+        uid: uid_t,
+        gid: gid_t,
+        gecos: *const c_char,
+        dir: *const c_char,
+        shell: *const c_char,
+    }
+</code></pre>
+<p>关于 <code>struct passwd</code> 的结构，其官方文档位于 <a href="https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_608.html">https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_608.html</a>。</p>
+<h2><a class="header" href="#c-风格错误处理" id="c-风格错误处理">C 风格错误处理</a></h2>
+<p>在 C 语言中，一般以返回一个正常情况下不可能得到的值来表示发生了错误，例如 <code>geteuid</code> 会在错误时返回 <code>(unsigned int) -1</code>，由于 C 语言中的整数运算是允许溢出的，这等效于 Rust 中的 <code>1u32.wrapping_neg()</code>，或者是它的结果 <code>std::u32::MAX</code>；</p>
+<pre><code class="language-rust ignore">            let uid = geteuid();
+            if uid == std::u32::MAX {
+                return Err(Error::last_os_error());
+            }
+</code></pre>
+<p>而对于返回指针的函数，其错误的结果一般是 <code>(void *) 0</code>，即 <code>NULL</code> 宏，对于 Rust 而言，可以对任意原始指针调用 <code>.is_null()</code> 方法来检测它是否是空指针。</p>
+<pre><code class="language-rust ignore">            let pw = getpwuid(uid);
+            if pw.is_null() {
+                return Err(Error::last_os_error());
+            }
+</code></pre>
+<h2><a class="header" href="#转换字符串" id="转换字符串">转换字符串</a></h2>
+<p>C 字符串是一个以 <code>char *</code> 记录首地址，以 <code>\0</code> 标记尾部的字节数组，Rust 提供了 <code>std::ffi::CStr</code> 类型来从一个字节数组读取字符串，其结果实际上也是以字节为基础的，无法确定能否编码为字符。之后调用 <code>String::from_utf8_lossy</code> 将其编码为字符串，如果有错误的字节，则会被忽略。</p>
+<pre><code class="language-rust ignore">            let name = std::ffi::CStr::from_ptr((*pw).name).to_bytes();
+            let name = String::from_utf8_lossy(name).to_string();
+</code></pre>
+<h2><a class="header" href="#条件编译" id="条件编译">条件编译</a></h2>
+<p>由于 Linux 和 Windows 等系统的环境不一样，且 whoami 是高度依赖 glibc API 的，因此在 Windows 下甚至无法完成编译。在程序内通过标注 <code>cfg</code> 属性，可以告知编译器仅在内部表达式为真的情况下编译代码。一条标注影响最近邻的行或块：</p>
+<pre><code class="language-rust ignore">#[cfg(target_os = &quot;linux)]
+</code></pre>
+<h1><a class="header" href="#完整代码-2" id="完整代码-2">完整代码</a></h1>
+<pre><code class="language-rust ignore">//! # whoami
+//! 显示当前进程所激活的用户名
+
+use clap::App;
+use clap::{crate_authors, crate_description, crate_name, crate_version};
+
+fn cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .author(crate_authors!(&quot;;&quot;))
+        .version(crate_version!())
+        .about(crate_description!())
+}
+
+fn main() {
+    cli_parser().get_matches();
+
+    match os_whoami() {
+        Ok(name) =&gt; println!(&quot;{}&quot;, name),
+        Err(e) =&gt; panic!(&quot;{:?}&quot;, e),
+    }
+}
+
+#[cfg(target_os = &quot;linux&quot;)]
+use self::posix::os_whoami;
+
+#[cfg(target_os = &quot;linux&quot;)]
+mod posix {
+    use std::io::Error;
+
+    pub fn os_whoami() -&gt; Result&lt;String, Error&gt; {
+        let name = unsafe {
+            // ANCHOR: c_err1
+            let uid = geteuid();
+            if uid == std::u32::MAX {
+                return Err(Error::last_os_error());
+            }
+            // ANCHOR_END: c_err1
+
+            // ANCHOR: c_err2
+            let pw = getpwuid(uid);
+            if pw.is_null() {
+                return Err(Error::last_os_error());
+            }
+            // ANCHOR_END: c_err2
+
+            // ANCHOR: c_str
+            let name = std::ffi::CStr::from_ptr((*pw).name).to_bytes();
+            let name = String::from_utf8_lossy(name).to_string();
+            // ANCHOR_END: c_str
+            name
+        };
+
+        Ok(name)
+    }
+
+    // ANCHOR: c_types
+    use std::os::raw::c_char;
+    /// 根据 POSIX 标准，uid_t, gid_t 是 32 位整数，但未提及有无符号；
+    /// 在 glibc 中的实现是 unsigned int
+    use std::os::raw::{c_uint as uid_t, c_uint as gid_t};
+    // ANCHOR_END: c_types
+
+    /// 参考文档：[The Data Structure that Describes a User](https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_608.html)
+    /// 用来描述 /etc/passwd 中的条目
+    // ANCHOR: struct_align
+    #[repr(C)]
+    struct Passwd {
+        name: *const c_char,
+        passwd: *const c_char,
+        uid: uid_t,
+        gid: gid_t,
+        gecos: *const c_char,
+        dir: *const c_char,
+        shell: *const c_char,
+    }
+    // ANCHOR_END: struct_align
+
+    // ANCHOR: extern_c
+    extern &quot;C&quot; {
+        /// `uid_t geteuid(void);`
+        fn geteuid() -&gt; uid_t;
+        /// `struct passwd* geteuid(uid_t);`
+        fn getpwuid(uid: uid_t) -&gt; *const Passwd;
+    }
+    // ANCHOR_END: extern_c
+}
+</code></pre>
+<h1><a class="header" href="#附录快速乘算法" id="附录快速乘算法">附录：快速乘算法</a></h1>
+<p>对于整数乘法，一种朴素的方法是：</p>
+<p>$$
+a * b = \underbrace{a + a + \cdots + a}_{b \text{个} a}
+$$</p>
+<p>有一种简化方法可以将时间复杂度从 \(O(n)\) 降低到 \(O(\log{n})\)</p>
+<p>$$
+\def\mul{\operatorname{mul}}
+\mul(a,b) = \begin{cases}
+\mul(2a, \frac{b}{2}) &amp; b \text{是偶数} \\
+\mul(2a, \lfloor\frac{b}{2}\rfloor) + a &amp; b \text{是奇数} \\
+\end{cases}
+$$</p>
+<h2><a class="header" href="#递归实现" id="递归实现">递归实现</a></h2>
+<pre><code class="language-rust ignore">pub fn fastmul(a: u64, b: u64) -&gt; u64 {
+    match b {
+        0 =&gt; 0,
+        1 =&gt; a,
+        b =&gt; {
+            if b &amp; 1 == 1 {
+                fastmul(a.wrapping_add(a), b / 2).wrapping_add(a)
+            } else {
+                fastmul(a.wrapping_add(a), b / 2)
+            }
+        }
+    }
+}
+</code></pre>
+<h2><a class="header" href="#循环实现" id="循环实现">循环实现</a></h2>
+<pre><code class="language-rust ignore">pub fn fastmul_norec(a: u64, b: u64) -&gt; u64 {
+    match b {
+        0 =&gt; 0,
+        1 =&gt; a,
+        b =&gt; {
+            let (mut a, mut b) = (a, b);
+            let mut sum: u64 = 0;
+            while b != 1 {
+                if b &amp; 1 == 1 {
+                    sum = sum.wrapping_add(a);
+                }
+                a = a.wrapping_add(a);
+                b /= 2;
+            }
+            sum.wrapping_add(a)
+        }
+    }
+}
+</code></pre>
+<h1><a class="header" href="#附录快速幂算法" id="附录快速幂算法">附录：快速幂算法</a></h1>
+<p>对整数求幂，一种朴素的想法就是：</p>
+<p>$$
+\def\pow{\operatorname{pow}}
+\pow(b,e) =b^e = \underbrace{b \cdot b \cdot b \cdots b}_{n \text{个} b}
+$$</p>
+<p>假设一次乘法运算的时间复杂度为 \(O(1)\)，则一次求幂运算的时间复杂度为 \(O(e)\)。</p>
+<p>但是，可以用一个递归方法简化：</p>
+<p>$$
+\def\pow{\operatorname{pow}}
+\pow(b, e) = \begin{cases}
+\pow(b^2, \frac{e}{2}) &amp; e \ \text{是偶数} \\
+\pow(b^2,
+\lfloor\frac{e}{2}\rfloor)
+\cdot b &amp; e \ \text{是奇数} \\
+\end{cases}
+$$</p>
+<p>每递归一次，指数缩小一半，因此时间复杂度变为 \(O(\log n)\)。这种算法就被称为 「快速幂」。</p>
+<h2><a class="header" href="#递归实现-1" id="递归实现-1">递归实现</a></h2>
+<pre><code class="language-rust ignore">pub fn fastpow(b: u64, e: u32) -&gt; u64 {
+    match e {
+        0 =&gt; 1,
+        1 =&gt; b,
+        e =&gt; {
+            if e &amp; 1 == 1 {
+                fastpow(b.wrapping_mul(b), e / 2).wrapping_mul(b)
+            } else {
+                fastpow(b.wrapping_mul(b), e / 2)
+            }
+        }
+    }
+}
+</code></pre>
+<h2><a class="header" href="#循环实现-1" id="循环实现-1">循环实现</a></h2>
+<pre><code class="language-rust ignore">pub fn fastpow_norec(b: u64, e: u32) -&gt; u64 {
+    match e {
+        0 =&gt; 1,
+        1 =&gt; b,
+        e =&gt; {
+            let (mut b, mut e) = (b, e);
+            let mut prod: u64 = 1;
+            while e != 1 {
+                if e &amp; 1 == 1 {
+                    prod = prod.wrapping_mul(b);
+                }
+                b = b.wrapping_mul(b);
+                e /= 2;
+            }
+            prod.wrapping_mul(b)
+        }
+    }
+}
+</code></pre>
+<h1><a class="header" href="#附录整数开方" id="附录整数开方">附录：整数开方</a></h1>
+<blockquote>
+<p>参考原文：<a href="http://www.nuprl.org/MathLibrary/integer_sqrt/">http://www.nuprl.org/MathLibrary/integer_sqrt/</a></p>
+</blockquote>
+<p>对任意自然数 \(x\in \mathbb{N}\)，设它的整数平方根为 \(r = \lfloor\sqrt{x}\rfloor\)，则必然有 \(r^2 \le x &lt; (r + 1)^2\) 。并且，有如下关系：</p>
+<p>$$
+\lfloor\sqrt{x+1}\rfloor = \begin{cases}
+\lfloor\sqrt{x}\rfloor
+&amp; x+1 &lt; (r+1)^2 \\
+\lfloor\sqrt{x}\rfloor + 1
+&amp; x+1 \ge (r+1)^2
+\end{cases}
+$$</p>
+<p>因此，就可以通过检查 <code>isqrt(x - 1)</code> 的值来求得 <code>isqrt(x)</code> 的值：</p>
+<pre><pre class="playground"><code class="language-rust editable">fn isqrt(x: u64) -&gt; u64 {
+    match x {
+        0 =&gt; 0,
+        x =&gt; {
+            let r = isqrt(x - 1);
+            let rr = r + 1;
+            if x &lt; rr * rr {
+                return r;
+            } else {
+                return rr;
+            }
+        }
+    }
+}
+
+fn main() {
+    println!(&quot;{}&quot;, isqrt(17));
+}
+</code></pre></pre>
+<p>只不过这种方法并不是最有效的，它要求得 \(\sqrt{x}\) ，就需要先求 \(\sqrt{x-1}\)，再之前是 \(\sqrt{x-2}\) 直到 \(\sqrt{0}\)。也就是说，时间复杂度为 \(O(x)\)。</p>
+<p>通过数学上的「完全归纳法」，可以证明：</p>
+<blockquote>
+<p>对任意自然数 \(x, y \in \mathbb{N}\)，如果有 \(P(y) \Rightarrow P(x), y &lt; x\)，那么只要 \(P(0)\) 成立，则对所有自然数，都有 \(P(x)\) 成立。</p>
+</blockquote>
+<p>而上面的简化法就是此完全归纳法在 \(y = x - 1\) 的特例。那么我们需要的新的 \(y = f(x)\) 关系应当是什么？为了简化算法，我们一般需要通过除法来减小操作数，设除数为 \(b, b &gt; 1\)，则有：</p>
+<p>$$
+\operatorname{isqrt}(x) \sim \operatorname{isqrt}(\frac{x}{b})
+$$</p>
+<p>假设，存在 \(r_0^2 \le \frac{x}{b} &lt; (r_0 + 1)^2\), \(r^2 \le x &lt; (r + 1)^2\)，则有</p>
+<p>$$
+r^2 = br_0^2, (r+1)^2 &lt; b(r_0 + 1)^2
+$$</p>
+<p>有</p>
+<p>$$
+r = \sqrt{b} r_0
+$$</p>
+<p>这样，就可取递归参数 \(b = 4\)，使得数值可以成倍地减少（二进制优化）：</p>
+<pre><pre class="playground"><code class="language-rust editable">pub fn isqrt(n: u64) -&gt; u64 {
+    if n &lt; 2 {
+        n
+    } else {
+        let r = 2 * isqrt(n / 4);
+        let rr = r + 1;
+        if n &lt; rr * rr {
+            r
+        } else {
+            rr
+        }
+    }
+}
+
+fn main() {
+    println!(&quot;{}&quot;, isqrt(100));
+}
+</code></pre></pre>
+<h2><a class="header" href="#递归实现-2" id="递归实现-2">递归实现</a></h2>
+<pre><code class="language-rust ignore">pub fn isqrt(n: u64) -&gt; u64 {
+    if n &lt; 2 {
+        n
+    } else {
+        let r = 2 * isqrt(n / 4);
+        let rr = r + 1;
+        if n &lt; rr * rr {
+            r
+        } else {
+            rr
+        }
+    }
+}
+</code></pre>
+<h1><a class="header" href="#n-次方" id="n-次方">n 次方</a></h1>
+<p>同理，对 \(x^{\frac{1}{n}}\) 也有</p>
+<p>$$
+r^n = b r_0^n \Rightarrow r = \sqrt[n]{b} r_0
+$$</p>
+<p>取 \(b = 2^n\)。</p>
+<pre><pre class="playground"><code class="language-rust editable">pub fn iroot(i: u64, n: u32) -&gt; u64 {
+    match (i, n) {
+        (0, _) =&gt; 0,
+        (1, _) =&gt; 1,
+        (_, 1) =&gt; i,
+        (i,n) =&gt; {
+            let b = 2u64.pow(n);
+            let r = 2 * iroot(i / b, n);
+            let rr = r + 1;
+            if i &lt; rr.pow(n) {
+                r
+            } else {
+                rr
+            }
+        }
+    }
+}
+
+fn main() {
+    println!(&quot;{}&quot;, iroot(1024, 3));
+}
+</code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

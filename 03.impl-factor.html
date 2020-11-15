@@ -1,0 +1,483 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>实现 factor - Coreutils' 笔记</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="01.what-is-coreutils.html">什么是 Coreutils</a></li><li class="chapter-item expanded affix "><li class="part-title">简单工具的实现</li><li class="chapter-item expanded "><a href="02.impl-yes.html"><strong aria-hidden="true">1.</strong> 实现 yes</a></li><li class="chapter-item expanded "><a href="03.impl-factor.html" class="active"><strong aria-hidden="true">2.</strong> 实现 factor</a></li><li class="chapter-item expanded affix "><li class="part-title">POSIX 相关工具的实现</li><li class="chapter-item expanded "><a href="04.impl-whoami.html"><strong aria-hidden="true">3.</strong> 实现 whoami</a></li><li class="chapter-item expanded affix "><li class="part-title">附录</li><li class="chapter-item expanded "><a href="ext/fastmul.html"><strong aria-hidden="true">4.</strong> 附录：快速乘算法</a></li><li class="chapter-item expanded "><a href="ext/fastpow.html"><strong aria-hidden="true">5.</strong> 附录：快速幂算法</a></li><li class="chapter-item expanded "><a href="ext/isqrt.html"><strong aria-hidden="true">6.</strong> 附录：整数开方</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Coreutils' 笔记</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#实现-factor" id="实现-factor">实现 factor</a></h1>
+<p>factor 的作用是：从命令行读取数字，分解质因数并打印在 stdout。可以同时传入多个数字，将每个数字分别分解并打印。
+如果未从命令行中传入数字，则转而从 stdin 读取。</p>
+<pre><code>$ factor 123 321
+123: 3 41
+321: 3 107
+</code></pre>
+<h2><a class="header" href="#解析命令行参数" id="解析命令行参数">解析命令行参数</a></h2>
+<p>除了和 <a href="./02.impl-yes.html">yes</a> 相同的部分之外，这里介绍一下 <code>validator</code>。</p>
+<p>顾名思义，<code>validator</code> 是用于检验参数的，它需要一个函数或闭包，接受 <code>String</code> 类型的参数，输出 <code>Result&lt;(), String&gt;</code>。当输出为 <code>Ok(())</code> 时，表明该参数通过检验，当输出为 <code>Err(String)</code> 时，表示该参数不能通过检验，并提供错误信息。</p>
+<pre><code class="language-rust ignore">fn(String) -&gt; Result&lt;(), String&gt;
+</code></pre>
+<p>我们在这里检验的目的是，确定输入的参数是数字，如果不是数字，则报错。</p>
+<pre><code class="language-rust ignore">fn validate_number(s: &amp;String) -&gt; Result&lt;(), String&gt; {
+    for c in s.chars() {
+        match c {
+            '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' =&gt; continue,
+            _ =&gt; return Err(format!(&quot;{:?} is not a valid positive integer&quot;, &amp;s)),
+        }
+    }
+    return Ok(());
+}
+</code></pre>
+<p>在报错时，validator 会在返回这样的报错消息：</p>
+<pre><code>&quot;xxx&quot; is not a valid positive integer
+</code></pre>
+<p>为了和原版 factor 的行为保持一致，我们在 main 函数中依次检验：</p>
+<pre><code class="language-rust ignore">    if let Err(msg) = validate_number(&amp;n) {
+        eprintln!(&quot;factor: {}&quot;, msg);
+    } else {
+        let factors = factor(n.parse().unwrap())
+            .iter()
+            .map(|n| n.to_string())
+            .collect::&lt;Vec&lt;String&gt;&gt;()
+            .join(&quot; &quot;);
+        println!(&quot;{}: {}&quot;, &amp;n, factors);
+    }
+</code></pre>
+<h2><a class="header" href="#从-stdin-读取数字" id="从-stdin-读取数字">从 stdin 读取数字</a></h2>
+<p>从 stdin 中读取一行很简单：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>loop {
+    let mut buf = String::new();
+    let read_size = std::io::stdin().read_line(&amp;mut buf).unwrap();
+    if read_size == 0 {
+        break
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>这样，当输入 NULL 字符时，循环终止。</p>
+<h2><a class="header" href="#分解质因数" id="分解质因数">分解质因数</a></h2>
+<p>在使用更高深的数学知识之前，我们先使用高中时学过的「辗转相除法」来进行因数分解，并使用「Eratosthenes 筛法」来检测素数。</p>
+<h3><a class="header" href="#辗转相除法" id="辗转相除法">辗转相除法</a></h3>
+<ol>
+<li>设有两非零正整数 \(a_1, b_1\) 且 \(a_1 &gt; b_1\)，则取 \(p_1 = a_1 \mod b_1\)
+<ol start="2">
+<li>如果 \(p_1 = 0\)，则说明 \(b_1\) 能整除 \(a_1\)，是 \(a_1\) 的因子</li>
+<li>如果 \(p_1 \ne 0\)，则令 \(a_2 = b_1, b_2 = p_1\) 继续取 \(p_2 = a_2 \mod b_2\)，以此类推，直到 \(p_n = 0\) 为止</li>
+</ol>
+</li>
+</ol>
+<p>设 \(p\) 为 \(a, b\) 的因子，则有 \(a = pm, b = pn\)，则辗转相除的过程中，有 \(|m' - n'| \to 1\)，即可求出因子 \(p\)。</p>
+<p>递归实现：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn gcd(a: u64, b: u64) -&gt; u64 {
+    let p = if a &gt; b { a % b } else { b % a };
+    if p == 0 {
+        b
+    } else {
+        gcd(b, p)
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<pre><code class="language-rust ignore">fn gcd(a: u64, b: u64) -&gt; u64 {
+    let (mut a, mut b) = if a &lt; b { (b, a) } else { (a, b) };
+    while a % b != 0 {
+        let t = b;
+        b = a % b;
+        a = t;
+    }
+    return b;
+}
+</code></pre>
+<h3><a class="header" href="#eratosthenes-法" id="eratosthenes-法">Eratosthenes 法</a></h3>
+<p>古希腊数学家 Eratosthenes 先将一定范围内的数全部列出（\(N\)），然后从 2 开始，逐个将 2 的倍数排除；然后剩下的部分第一位是 3，再排除倍数；然后剩下的第一位是 5，再排除……以此类推。</p>
+<p>用 Python 风格的伪代码表示如下：</p>
+<pre><code class="language-python"># 筛表
+table = [True for _ in range(n)]
+# 排除 0 和 1
+table[0] = False
+table[1] = False
+
+# 从 2 开始
+head = 2
+# head 是素数
+while table[head] is True:
+    # head 的倍数都不是素数
+    for notprime in range(2*head, n, head):
+        table[notprime] = False
+    # 取筛一回合之后，剩下的第一个素数继续筛选，直到筛选完毕
+    try:
+        head = table.index(True, head + 1)
+    except ValueError: # True not in list
+        break
+
+# 素数数列
+primes = [i for i in range(n) if table[i] is True]
+</code></pre>
+<p>Rust 实现：</p>
+<pre><code class="language-rust ignore">pub fn eratosthenes(n: usize) -&gt; Vec&lt;usize&gt; {
+    let n = n.into();
+    let mut table = vec![true; n];
+    table[0] = false;
+    table[1] = false;
+    let mut head = 2;
+    'prime: while table[head] {
+        for notprime in (2 * head..n).step_by(head) {
+            table[notprime] = false;
+        }
+        for next_prime in (head + 1)..n {
+            if table[next_prime] {
+                head = next_prime;
+                continue 'prime;
+            }
+        }
+        break;
+    }
+
+    let primes = table
+        .iter()
+        .enumerate()
+        .filter(|(_, b)| **b)
+        .map(|(i, _)| i)
+        .collect();
+
+    return primes;
+}
+</code></pre>
+<p>现在，我们的 factor 就已经可以用了。遗憾的是，由于内存空间的限制，无法求解大于当前内存字节数的数。</p>
+<p>为了求解较大的数，我们还需要了解一下 Pollard's rho 算法 或 Shanks' square forms factorization。而要求解超过 u64 范围的整数，那么更需要了解一下大整数模拟，例如 C 语言所使用的 libgmp。</p>
+<h1><a class="header" href="#完整代码" id="完整代码">完整代码</a></h1>
+<pre><code class="language-rust ignore">use clap::{crate_authors, crate_description, crate_name, crate_version};
+use clap::{App, Arg};
+use prime::eratosthenes;
+
+// ANCHOR: clap_app
+fn get_cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .author(crate_authors!(&quot;; &quot;))
+        .version(crate_version!())
+        .about(crate_description!())
+        .arg(Arg::with_name(&quot;NUMBER&quot;).multiple(true))
+}
+// ANCHOR_END: clap_app
+
+// ANCHOR: validator
+fn validate_number(s: &amp;String) -&gt; Result&lt;(), String&gt; {
+    for c in s.chars() {
+        match c {
+            '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' =&gt; continue,
+            _ =&gt; return Err(format!(&quot;{:?} is not a valid positive integer&quot;, &amp;s)),
+        }
+    }
+    return Ok(());
+}
+// ANCHOR_END: validator
+
+fn main() {
+    let args = get_cli_parser().get_matches();
+    if let Some(numbers) = args.values_of(&quot;NUMBER&quot;) {
+        for n in numbers {
+            check_and_print_factor(n.to_string());
+        }
+    } else {
+        loop {
+            let mut buf = String::new();
+            std::io::stdin().read_line(&amp;mut buf).unwrap();
+            let number = buf.trim();
+            check_and_print_factor(number.to_string());
+        }
+    }
+}
+
+fn check_and_print_factor(n: String) {
+    // ANCHOR: true_validate
+    if let Err(msg) = validate_number(&amp;n) {
+        eprintln!(&quot;factor: {}&quot;, msg);
+    } else {
+        let factors = factor(n.parse().unwrap())
+            .iter()
+            .map(|n| n.to_string())
+            .collect::&lt;Vec&lt;String&gt;&gt;()
+            .join(&quot; &quot;);
+        println!(&quot;{}: {}&quot;, &amp;n, factors);
+    }
+    // ANCHOR_END: true_validate
+}
+
+// todo
+fn factor(n: u64) -&gt; Vec&lt;u64&gt; {
+    if n &lt; 4 {
+        return vec![n];
+    } else {
+        let map = eratosthenes(n as usize);
+        let mut ans = Vec::new();
+        let mut n = n;
+
+        while n != 1 {
+            for p in map.iter() {
+                let q = gcd(n, *p as u64);
+                if q != 1 {
+                    ans.push(q);
+                    n /= q;
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+
+// ANCHOR: gcd
+fn gcd(a: u64, b: u64) -&gt; u64 {
+    let (mut a, mut b) = if a &lt; b { (b, a) } else { (a, b) };
+    while a % b != 0 {
+        let t = b;
+        b = a % b;
+        a = t;
+    }
+    return b;
+}
+// ANCHOR_END: gcd
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="02.impl-yes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="04.impl-whoami.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="02.impl-yes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="04.impl-whoami.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

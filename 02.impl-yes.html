@@ -1,0 +1,332 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>实现 yes - Coreutils' 笔记</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="01.what-is-coreutils.html">什么是 Coreutils</a></li><li class="chapter-item expanded affix "><li class="part-title">简单工具的实现</li><li class="chapter-item expanded "><a href="02.impl-yes.html" class="active"><strong aria-hidden="true">1.</strong> 实现 yes</a></li><li class="chapter-item expanded "><a href="03.impl-factor.html"><strong aria-hidden="true">2.</strong> 实现 factor</a></li><li class="chapter-item expanded affix "><li class="part-title">POSIX 相关工具的实现</li><li class="chapter-item expanded "><a href="04.impl-whoami.html"><strong aria-hidden="true">3.</strong> 实现 whoami</a></li><li class="chapter-item expanded affix "><li class="part-title">附录</li><li class="chapter-item expanded "><a href="ext/fastmul.html"><strong aria-hidden="true">4.</strong> 附录：快速乘算法</a></li><li class="chapter-item expanded "><a href="ext/fastpow.html"><strong aria-hidden="true">5.</strong> 附录：快速幂算法</a></li><li class="chapter-item expanded "><a href="ext/isqrt.html"><strong aria-hidden="true">6.</strong> 附录：整数开方</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Coreutils' 笔记</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#实现-yes" id="实现-yes">实现 yes</a></h1>
+<p>yes 的作用是将输入的字符串无限重复输出至 stdout，直到它被终止为止。</p>
+<p>而根据 coreutils 所遵守的共同规范，除了实现上述功能之外，还需要：</p>
+<ol>
+<li>提供标准的 <code>--help</code>, <code>--version</code>, <code>--</code> 命令行解析；</li>
+<li>提供标准的进程返回码：当成功退出时，为 0，当失败或错误时，为非零值；</li>
+</ol>
+<h2><a class="header" href="#命令行参数解析" id="命令行参数解析">命令行参数解析</a></h2>
+<p>这里可以使用 Rust 中非常流行的 clap 库，目前（2020/11/14），clap 库的最新版本为 <code>2.33.3</code>，在添加为依赖时，可以宽松一点，只要求主版本号为 <code>2</code> 即可：</p>
+<pre><code class="language-toml">// [dependencies]
+clap = &quot;2&quot;
+</code></pre>
+<p>clap 会自动地实现 <code>--version</code>, <code>--help</code>, 和 <code>--</code> 解析功能，只需要在解析器对象上添加相关属性即可。在 <code>yes/src/main.rs</code> 中，配置命令行解析器：</p>
+<pre><code class="language-rust ignore">use clap::{crate_version, crate_authors, crate_description, crate_name};
+use clap::{App, Arg};
+
+fn get_cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .version(crate_version!())
+        .author(crate_authors!(&quot;; &quot;))
+        .about(crate_description!())
+        .arg(Arg::with_name(&quot;STRING&quot;).multiple(true))
+}
+</code></pre>
+<ol>
+<li>clap 库的解析器为一个 App 对象，它需要引用两类字符串，在一般的命令行工具中，这些字符串都是以静态数据的方式存储在二进制文件里的，因此可以用 <code>'static</code> 生命周期</li>
+<li>clap 提供了名为 <code>crate_version!</code>,<code>crate_name!</code>,<code>crate_description!</code>,<code>crate_name!</code> 一系列宏，来从当前 crate 的 Cargo.toml 文件中读取对应字段的值</li>
+<li>Arg 对象表示一个需要解析的参数，通过 <code>Arg::with_name</code> 设置该参数的标识符，在匹配之后，通过此标识符来寻找到该参数
+<ul>
+<li>在未设置 <code>short</code> 和 <code>long</code> 的情况下，参数将为 <strong>位置参数</strong>，根据传入时的位置进行匹配</li>
+<li><code>.multiple(true)</code> 表示此参数有多个值，命令行以 <code> </code>（空格）作为值的分隔符</li>
+</ul>
+</li>
+</ol>
+<pre><code class="language-rust ignore">fn main() {
+    let args = get_cli_parser().get_matches();
+    let text = if let Some(texts) = args.values_of(&quot;STRING&quot;) {
+        let texts: Vec&lt;&amp;str&gt; = texts.into_iter().collect();
+        texts.join(&quot; &quot;).to_string()
+    } else {
+        String::new()
+    };
+
+    loop {
+        println!(&quot;{}&quot;, text);
+    }
+}
+</code></pre>
+<ol>
+<li>App 对象提供了 <code>get_matches</code> 方法，执行时解析传入的命令行参数，这会返回一个 AppMatch 对象</li>
+<li>要取得值，需要根据标识符取得，如果该参数设置了 <code>multiple</code>，则应当使用 <code>values_of</code>，否则使用 <code>value_of</code></li>
+<li><code>values_of</code> 返回 <code>Option&lt;Values&gt;</code> 类型的对象，<code>Values</code> 可以转换为一个迭代器，一般会读入一个 Vec 对象中方便后续引用。而当没有匹配到命令行参数时，它将返回 <code>None</code>。</li>
+</ol>
+<h2><a class="header" href="#功能实现" id="功能实现">功能实现</a></h2>
+<p>yes 的功能算是非常简单了，一个无限循环即可。</p>
+<pre><code class="language-rust ignore">loop {
+    println!(&quot;{}&quot;, text);
+}
+</code></pre>
+<h1><a class="header" href="#完整代码" id="完整代码">完整代码</a></h1>
+<pre><code class="language-rust ignore">// ANCHOR: clap_app
+use clap::{crate_version, crate_authors, crate_description, crate_name};
+use clap::{App, Arg};
+
+fn get_cli_parser() -&gt; App&lt;'static, 'static&gt; {
+    App::new(crate_name!())
+        .version(crate_version!())
+        .author(crate_authors!(&quot;; &quot;))
+        .about(crate_description!())
+        .arg(Arg::with_name(&quot;STRING&quot;).multiple(true))
+}
+// ANCHOR_END: clap_app
+
+// ANCHOR: main
+fn main() {
+    let args = get_cli_parser().get_matches();
+    let text = if let Some(texts) = args.values_of(&quot;STRING&quot;) {
+        let texts: Vec&lt;&amp;str&gt; = texts.into_iter().collect();
+        texts.join(&quot; &quot;).to_string()
+    } else {
+        String::new()
+    };
+
+    loop {
+        println!(&quot;{}&quot;, text);
+    }
+}
+// ANCHOR_END: main
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="01.what-is-coreutils.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="03.impl-factor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="01.what-is-coreutils.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="03.impl-factor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

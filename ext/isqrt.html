@@ -1,0 +1,347 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>附录：整数开方 - Coreutils' 笔记</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="../favicon.png">
+        
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../01.what-is-coreutils.html">什么是 Coreutils</a></li><li class="chapter-item expanded affix "><li class="part-title">简单工具的实现</li><li class="chapter-item expanded "><a href="../02.impl-yes.html"><strong aria-hidden="true">1.</strong> 实现 yes</a></li><li class="chapter-item expanded "><a href="../03.impl-factor.html"><strong aria-hidden="true">2.</strong> 实现 factor</a></li><li class="chapter-item expanded affix "><li class="part-title">POSIX 相关工具的实现</li><li class="chapter-item expanded "><a href="../04.impl-whoami.html"><strong aria-hidden="true">3.</strong> 实现 whoami</a></li><li class="chapter-item expanded affix "><li class="part-title">附录</li><li class="chapter-item expanded "><a href="../ext/fastmul.html"><strong aria-hidden="true">4.</strong> 附录：快速乘算法</a></li><li class="chapter-item expanded "><a href="../ext/fastpow.html"><strong aria-hidden="true">5.</strong> 附录：快速幂算法</a></li><li class="chapter-item expanded "><a href="../ext/isqrt.html" class="active"><strong aria-hidden="true">6.</strong> 附录：整数开方</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Coreutils' 笔记</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#附录整数开方" id="附录整数开方">附录：整数开方</a></h1>
+<blockquote>
+<p>参考原文：<a href="http://www.nuprl.org/MathLibrary/integer_sqrt/">http://www.nuprl.org/MathLibrary/integer_sqrt/</a></p>
+</blockquote>
+<p>对任意自然数 \(x\in \mathbb{N}\)，设它的整数平方根为 \(r = \lfloor\sqrt{x}\rfloor\)，则必然有 \(r^2 \le x &lt; (r + 1)^2\) 。并且，有如下关系：</p>
+<p>$$
+\lfloor\sqrt{x+1}\rfloor = \begin{cases}
+\lfloor\sqrt{x}\rfloor
+&amp; x+1 &lt; (r+1)^2 \\
+\lfloor\sqrt{x}\rfloor + 1
+&amp; x+1 \ge (r+1)^2
+\end{cases}
+$$</p>
+<p>因此，就可以通过检查 <code>isqrt(x - 1)</code> 的值来求得 <code>isqrt(x)</code> 的值：</p>
+<pre><pre class="playground"><code class="language-rust editable">fn isqrt(x: u64) -&gt; u64 {
+    match x {
+        0 =&gt; 0,
+        x =&gt; {
+            let r = isqrt(x - 1);
+            let rr = r + 1;
+            if x &lt; rr * rr {
+                return r;
+            } else {
+                return rr;
+            }
+        }
+    }
+}
+
+fn main() {
+    println!(&quot;{}&quot;, isqrt(17));
+}
+</code></pre></pre>
+<p>只不过这种方法并不是最有效的，它要求得 \(\sqrt{x}\) ，就需要先求 \(\sqrt{x-1}\)，再之前是 \(\sqrt{x-2}\) 直到 \(\sqrt{0}\)。也就是说，时间复杂度为 \(O(x)\)。</p>
+<p>通过数学上的「完全归纳法」，可以证明：</p>
+<blockquote>
+<p>对任意自然数 \(x, y \in \mathbb{N}\)，如果有 \(P(y) \Rightarrow P(x), y &lt; x\)，那么只要 \(P(0)\) 成立，则对所有自然数，都有 \(P(x)\) 成立。</p>
+</blockquote>
+<p>而上面的简化法就是此完全归纳法在 \(y = x - 1\) 的特例。那么我们需要的新的 \(y = f(x)\) 关系应当是什么？为了简化算法，我们一般需要通过除法来减小操作数，设除数为 \(b, b &gt; 1\)，则有：</p>
+<p>$$
+\operatorname{isqrt}(x) \sim \operatorname{isqrt}(\frac{x}{b})
+$$</p>
+<p>假设，存在 \(r_0^2 \le \frac{x}{b} &lt; (r_0 + 1)^2\), \(r^2 \le x &lt; (r + 1)^2\)，则有</p>
+<p>$$
+r^2 = br_0^2, (r+1)^2 &lt; b(r_0 + 1)^2
+$$</p>
+<p>有</p>
+<p>$$
+r = \sqrt{b} r_0
+$$</p>
+<p>这样，就可取递归参数 \(b = 4\)，使得数值可以成倍地减少（二进制优化）：</p>
+<pre><pre class="playground"><code class="language-rust editable">pub fn isqrt(n: u64) -&gt; u64 {
+    if n &lt; 2 {
+        n
+    } else {
+        let r = 2 * isqrt(n / 4);
+        let rr = r + 1;
+        if n &lt; rr * rr {
+            r
+        } else {
+            rr
+        }
+    }
+}
+
+fn main() {
+    println!(&quot;{}&quot;, isqrt(100));
+}
+</code></pre></pre>
+<h2><a class="header" href="#递归实现" id="递归实现">递归实现</a></h2>
+<pre><code class="language-rust ignore">pub fn isqrt(n: u64) -&gt; u64 {
+    if n &lt; 2 {
+        n
+    } else {
+        let r = 2 * isqrt(n / 4);
+        let rr = r + 1;
+        if n &lt; rr * rr {
+            r
+        } else {
+            rr
+        }
+    }
+}
+</code></pre>
+<h1><a class="header" href="#n-次方" id="n-次方">n 次方</a></h1>
+<p>同理，对 \(x^{\frac{1}{n}}\) 也有</p>
+<p>$$
+r^n = b r_0^n \Rightarrow r = \sqrt[n]{b} r_0
+$$</p>
+<p>取 \(b = 2^n\)。</p>
+<pre><pre class="playground"><code class="language-rust editable">pub fn iroot(i: u64, n: u32) -&gt; u64 {
+    match (i, n) {
+        (0, _) =&gt; 0,
+        (1, _) =&gt; 1,
+        (_, 1) =&gt; i,
+        (i,n) =&gt; {
+            let b = 2u64.pow(n);
+            let r = 2 * iroot(i / b, n);
+            let rr = r + 1;
+            if i &lt; rr.pow(n) {
+                r
+            } else {
+                rr
+            }
+        }
+    }
+}
+
+fn main() {
+    println!(&quot;{}&quot;, iroot(1024, 3));
+}
+</code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../ext/fastpow.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../ext/fastpow.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+        <script src="../ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../editor.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../theme-dawn.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
