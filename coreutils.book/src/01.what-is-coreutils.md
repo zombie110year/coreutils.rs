@@ -104,5 +104,5 @@ coreutils 是 GNU 为 Linux 系统编写的一套基本应用程序，其源代�
 | | vdir | |
 | | wc | |
 | | who | |
-| | whoami | |
+| 完成 | whoami | 当前进程所使用的用户名 |
 | 完成 | yes | 重复输出字符串直到进程被终止 |
