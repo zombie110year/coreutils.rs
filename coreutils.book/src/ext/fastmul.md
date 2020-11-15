@@ -6,7 +6,7 @@ $$
 a * b = \underbrace{a + a + \cdots + a}_{b \text{个} a}
 $$
 
-有一种简化方法可以将时间复杂度从 $O(n)$ 降低到 $O(\log{n})$
+有一种简化方法可以将时间复杂度从 \\(O(n)\\) 降低到 \\(O(\log{n})\\)
 
 $$
 \def\mul{\operatorname{mul}}
