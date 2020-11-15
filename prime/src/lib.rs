@@ -9,10 +9,7 @@
 /// + 空间复杂度 $O(n)$
 // todo 自动推导 Vec<usize> -> Vec<T> 的转换
 // ANCHOR: eratosthenes
-pub fn eratosthenes<T>(n: T) -> Vec<usize>
-where
-    T: Into<usize>,
-{
+pub fn eratosthenes(n: usize) -> Vec<usize> {
     let n = n.into();
     let mut table = vec![true; n];
     table[0] = false;
@@ -49,7 +46,7 @@ mod test {
     #[test]
     fn test_eratosthenes() {
         assert_eq!(
-            eratosthenes(100),
+            eratosthenes(100usize),
             vec![
                 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79,
                 83, 89, 97
