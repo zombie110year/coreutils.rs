@@ -8,11 +8,10 @@
 /// + 时间复杂度 $O(n^{\frac{3}{2}})$
 /// + 空间复杂度 $O(n)$
 // todo 自动推导 Vec<usize> -> Vec<T> 的转换
-
 // ANCHOR: eratosthenes
 pub fn eratosthenes<T>(n: T) -> Vec<usize>
 where
-    T: Into<usize> + From<usize>,
+    T: Into<usize>,
 {
     let n = n.into();
     let mut table = vec![true; n];
