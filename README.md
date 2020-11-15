@@ -6,101 +6,103 @@
 
 coreutils 是 GNU 为 Linux 系统编写的一套基本应用程序，其源代码可以在 [GitHub:coreutils/coreutils](https://github.com/coreutils/coreutils) 上找到，文档位于 <https://www.gnu.org/software/coreutils/coreutils.html>。coreutils 包含的组件有：
 
-* [ ] arch
-* [ ] base64
-* [ ] basename
-* [ ] cat
-* [ ] chcon
-* [ ] chgrp
-* [ ] chmod
-* [ ] chown
-* [ ] chroot
-* [ ] cksum
-* [ ] comm
-* [ ] cp
-* [ ] csplit
-* [ ] cut
-* [ ] date
-* [ ] dd
-* [ ] df
-* [ ] dir
-* [ ] dircolors
-* [ ] dirname
-* [ ] du
-* [ ] echo
-* [ ] env
-* [ ] expand
-* [ ] expr
-* [ ] factor
-* [ ] false
-* [ ] fmt
-* [ ] fold
-* [ ] groups
-* [ ] head
-* [ ] hostid
-* [ ] hostname
-* [ ] id
-* [ ] install
-* [ ] join
-* [ ] kill
-* [ ] link
-* [ ] ln
-* [ ] logname
-* [ ] ls
-* [ ] md5sum
-* [ ] mkdir
-* [ ] mkfifo
-* [ ] mknod
-* [ ] mktemp
-* [ ] mv
-* [ ] nice
-* [ ] nl
-* [ ] nohup
-* [ ] nproc
-* [ ] numfmt
-* [ ] od
-* [ ] paste
-* [ ] pathchk
-* [ ] pinky
-* [ ] pr
-* [ ] printenv
-* [ ] printf
-* [ ] ptx
-* [ ] pwd
-* [ ] readlink
-* [ ] realpath
-* [ ] rm
-* [ ] rmdir
-* [ ] runcon
-* [ ] seq
-* [ ] shred
-* [ ] shuf
-* [ ] sleep
-* [ ] sort
-* [ ] split
-* [ ] stat
-* [ ] stdbuf
-* [ ] stty
-* [ ] sum
-* [ ] tac
-* [ ] tail
-* [ ] tee
-* [ ] test
-* [ ] timeout
-* [ ] touch
-* [ ] tr
-* [ ] true
-* [ ] truncate
-* [ ] tsort
-* [ ] tty
-* [ ] uname
-* [ ] unexpand
-* [ ] uniq
-* [ ] unlink
-* [ ] uptime
-* [ ] users
-* [ ] vdir
-* [ ] wc
-* [ ] who
-* [ ] whoami
-* [ ] yes - 重复输出字符串直到进程被终止
+| 实现情况 | 工具 | 简介 |
+|:-:|:-:|-|
+| | arch | |
+| | base64 | |
+| | basename | |
+| | cat | |
+| | chcon | |
+| | chgrp | |
+| | chmod | |
+| | chown | |
+| | chroot | |
+| | cksum | |
+| | comm | |
+| | cp | |
+| | csplit | |
+| | cut | |
+| | date | |
+| | dd | |
+| | df | |
+| | dir | |
+| | dircolors | |
+| | dirname | |
+| | du | |
+| | echo | |
+| | env | |
+| | expand | |
+| | expr | |
+| 半成品 | factor | 分解质因数 |
+| | false | |
+| | fmt | |
+| | fold | |
+| | groups | |
+| | head | |
+| | hostid | |
+| | hostname | |
+| | id | |
+| | install | |
+| | join | |
+| | kill | |
+| | link | |
+| | ln | |
+| | logname | |
+| | ls | |
+| | md5sum | |
+| | mkdir | |
+| | mkfifo | |
+| | mknod | |
+| | mktemp | |
+| | mv | |
+| | nice | |
+| | nl | |
+| | nohup | |
+| | nproc | |
+| | numfmt | |
+| | od | |
+| | paste | |
+| | pathchk | |
+| | pinky | |
+| | pr | |
+| | printenv | |
+| | printf | |
+| | ptx | |
+| | pwd | |
+| | readlink | |
+| | realpath | |
+| | rm | |
+| | rmdir | |
+| | runcon | |
+| | seq | |
+| | shred | |
+| | shuf | |
+| | sleep | |
+| | sort | |
+| | split | |
+| | stat | |
+| | stdbuf | |
+| | stty | |
+| | sum | |
+| | tac | |
+| | tail | |
+| | tee | |
+| | test | |
+| | timeout | |
+| | touch | |
+| | tr | |
+| | true | |
+| | truncate | |
+| | tsort | |
+| | tty | |
+| | uname | |
+| | unexpand | |
+| | uniq | |
+| | unlink | |
+| | uptime | |
+| | users | |
+| | vdir | |
+| | wc | |
+| | who | |
+| | whoami | |
+| 完成 | yes | 重复输出字符串直到进程被终止 |
