@@ -1,0 +1,32 @@
+{
+	// Place your coreutils workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"clap: basic config": {
+		"scope": "rust",
+		"prefix": "@clap",
+		"body": [
+			"use clap::{crate_authors, crate_description, crate_name, crate_version};",
+			"use clap::{App, Arg};",
+			"fn cli_parser() -> App<'static, 'static> {",
+			"\tApp::new(crate_name!())",
+			"\t\t.author(crate_authors!(\";\"))",
+			"\t\t.version(crate_version!())",
+			"\t\t.about(crate_description!())",
+			"}"
+		]
+	}
+}
