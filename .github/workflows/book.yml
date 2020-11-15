@@ -1,0 +1,32 @@
+name: 构件 mdbook 书籍
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 安装 Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: stable
+      - name: 安装 mdbook
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: latest
+      - name: 拉取代码
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: 测试代码
+        run: cargo test
+      - name: 构建书籍
+        run: cd coreutils.book && mdbook build
+      - name: 托管于 GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GH_PAGE_TOKEN }}
+          publish_dir: ./coreutils.book/book/
